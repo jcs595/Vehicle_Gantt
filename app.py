@@ -3,7 +3,7 @@ import plotly.express as px
 import streamlit as st
 
 # Path to the Excel file
-file_path = r"S:\FOR\Adm_EquipmentManager\Visor Archive.xlsx"
+file_path = r"Visor Archive.xlsx"
 
 # Streamlit app
 st.title("Vehicle Assignment Gantt Chart")
