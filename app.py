@@ -220,7 +220,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         new_entry["Status"] = st.selectbox("Status:", options=["Confirmed", "Reserved"])
 
         new_entry["Authorized Drivers"] = st.multiselect(
-            "Authorized Drivers (Select multiple or type to add new):",
+            "Authorized Drivers (May select multiple):",
             options=authorized_drivers_list,
             default=[]
         )
