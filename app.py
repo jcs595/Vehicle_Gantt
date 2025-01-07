@@ -21,9 +21,12 @@ except Exception as e:
     st.error(f"Error loading Excel file: {e}")
     st.stop()
 
-# Display the Gantt chart first
+# Full-screen Gantt chart
 st.title("Interactive Vehicle Assignment Gantt Chart")
-st.subheader("Gantt Chart")
+st.markdown("###")
+
+# Add a button to toggle the legend
+show_legend = st.checkbox("Show Legend", value=False)
 
 # Create the Gantt chart
 fig = px.timeline(
@@ -37,13 +40,22 @@ fig = px.timeline(
     labels={"Assigned to": "Vehicle"}
 )
 
+# Limit the y-axis labels to three characters
+fig.update_yaxes(
+    ticktext=[label[:3] for label in df["Type"]],  # Truncated labels
+    tickvals=df["Type"],
+    title=None,  # Hide Y-axis title
+)
+
 # Update layout for better visualization
-fig.update_yaxes(categoryorder="total ascending")
 fig.update_layout(
     height=800,  # Adjust chart height to fit full screen
     title_font_size=20,
-    margin=dict(l=0, r=0, t=40, b=0)  # Minimize margins
+    margin=dict(l=0, r=0, t=40, b=0),  # Minimize margins
+    showlegend=show_legend,  # Toggle legend based on the checkbox
 )
+
+# Display the Gantt chart full screen
 st.plotly_chart(fig, use_container_width=True)
 
 # Secure edit/delete section
@@ -91,6 +103,3 @@ with st.expander("Edit or Delete Entries (Protected)"):
         if st.button("Save Changes"):
             df.to_excel(file_path, index=False, engine="openpyxl")
             st.success("Changes saved to the Excel file!")
-
-    elif passcode:
-        st.error("Incorrect passcode! Access denied.")
