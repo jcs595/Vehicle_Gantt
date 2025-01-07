@@ -94,6 +94,19 @@ while current_date <= end_range:
     )
     current_date += timedelta(days=1)
 
+# Add horizontal grid lines
+for idx, label in enumerate(df["Type"]):
+    fig.add_shape(
+        type="line",
+        x0=start_range,
+        y0=idx - 0.5,  # Center line for each row
+        x1=end_range,
+        y1=idx - 0.5,
+        xref="x",
+        yref="y",
+        line=dict(color="lightgray", width=1, dash="dot"),
+    )
+
 # Update layout for dynamic zoom and better visualization
 fig.update_layout(
     height=800,  # Adjust chart height to fit full screen
