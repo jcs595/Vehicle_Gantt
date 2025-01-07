@@ -173,8 +173,19 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 return []
 
 
+        # Function to load the authorized drivers from the TXT file
+        def load_drivers_list(file_path):
+            try:
+                with open(file_path, "r") as file:
+                    return [line.strip() for line in file if line.strip()]  # Remove empty lines
+            except FileNotFoundError:
+                return []
+
+
         # Load the type list from the uploaded file
         type_list = load_type_list("type_list.txt")
+        # Load the authorized drivers list
+        authorized_drivers_list = load_drivers_list("authorized_drivers_list.txt")
 
         st.subheader("Create New Entry")
         new_entry = {}
@@ -208,10 +219,26 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         # "Status" field as a Boolean dropdown
         new_entry["Status"] = st.selectbox("Status:", options=["Confirmed", "Reserved"])
 
-        # "Authorized Drivers" field with multi-select and option to add new names
-        new_entry["Authorized Drivers (Only add names if they have been checked)"] = st.multiselect(
-            "Authorized Drivers (Select multiple or type to add new):", options=driver_options, default=[]
+        new_entry["Authorized Drivers"] = st.multiselect(
+            "Authorized Drivers (Select multiple or type to add new):",
+            options=authorized_drivers_list,
+            default=[]
         )
+
+
+        def save_drivers_list(file_path, data):
+            with open(file_path, "w") as file:
+                for item in data:
+                    file.write(f"{item}\n")
+
+
+        # Add a new authorized driver
+        if st.button("Add New Authorized Driver"):
+            new_driver = st.text_input("Enter new Authorized Driver:", "")
+            if new_driver and new_driver not in authorized_drivers_list:
+                authorized_drivers_list.append(new_driver)
+                save_drivers_list("authorized_drivers_list.txt", authorized_drivers_list)
+                st.success(f"Authorized driver '{new_driver}' added.")
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
