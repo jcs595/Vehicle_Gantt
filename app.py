@@ -182,10 +182,21 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 return []
 
 
+        # Function to load the "Assigned to" list from the TXT file
+        def load_assigned_to_list(file_path):
+            try:
+                with open(file_path, "r") as file:
+                    return [line.strip() for line in file if line.strip()]  # Remove empty lines
+            except FileNotFoundError:
+                return []
+
+
         # Load the type list from the uploaded file
         type_list = load_type_list("type_list.txt")
         # Load the authorized drivers list
         authorized_drivers_list = load_drivers_list("authorized_drivers_list.txt")
+        # Load the assigned to list
+        assigned_to_list = load_assigned_to_list("assigned_to_list.txt")
 
         st.subheader("Create New Entry")
         new_entry = {}
@@ -196,12 +207,24 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         driver_options = df["Authorized Drivers"].dropna().str.split(",").explode().unique().tolist()
 
         # "Assigned to" field with an option to add a new name
-        new_entry["Assigned to"] = st.text_input(
-            "Assigned to (Type a new name or select from dropdown):", ""
+        new_entry["Assigned to"] = st.selectbox(
+            "Assigned to:", options=[""] + assigned_to_list
         )
-        selected_assigned_to = st.selectbox("Or select an existing name:", options=[""] + assigned_to_options)
-        if selected_assigned_to and not new_entry["Assigned to"]:
-            new_entry["Assigned to"] = selected_assigned_to
+
+
+        def save_assigned_to_list(file_path, data):
+            with open(file_path, "w") as file:
+                for item in data:
+                    file.write(f"{item}\n")
+
+        # Add a new "Assigned to" entry
+        if st.button("Add New Assigned To"):
+            new_assigned_to = st.text_input("Enter new Assigned To (Must be Faculty or Staff):", "")
+            if new_assigned_to and new_assigned_to not in assigned_to_list:
+                assigned_to_list.append(new_assigned_to)
+                with open("assigned_to_list.txt", "w") as file:
+                    file.writelines(f"{name}\n" for name in assigned_to_list)
+                st.success(f"Assigned to '{new_assigned_to}' added.")
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
