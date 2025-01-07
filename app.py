@@ -165,15 +165,34 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         # **1. Create a New Entry**
         st.subheader("Create New Entry")
         new_entry = {}
-        # Dynamic dropdown options for Assigned to and Type
-        assigned_to_options = df["Assigned to"].dropna().unique().tolist()
-        type_options = df["Type"].dropna().unique().tolist()
 
-        new_entry["Assigned to"] = st.selectbox("Assigned to:", options=[""] + assigned_to_options)
+        # Dynamic dropdown options for Assigned to and Authorized Drivers
+        assigned_to_options = df["Assigned to"].dropna().unique().tolist()
+        driver_options = df["Authorized Drivers"].dropna().str.split(",").explode().unique().tolist()
+
+        # "Assigned to" field with an option to add a new name
+        new_entry["Assigned to"] = st.text_input(
+            "Assigned to (Type a new name or select from dropdown):", ""
+        )
+        selected_assigned_to = st.selectbox("Or select an existing name:", options=[""] + assigned_to_options)
+        if selected_assigned_to and not new_entry["Assigned to"]:
+            new_entry["Assigned to"] = selected_assigned_to
+
+        # "Type" field
+        type_options = df["Type"].dropna().unique().tolist()
         new_entry["Type"] = st.selectbox("Type:", options=[""] + type_options)
 
+        # "Status" field as a Boolean dropdown
+        new_entry["Status"] = st.selectbox("Status:", options=["Confirmed", "Reserved"])
+
+        # "Authorized Drivers" field with multi-select and option to add new names
+        new_entry["Authorized Drivers"] = st.multiselect(
+            "Authorized Drivers (Select multiple or type to add new):", options=driver_options, default=[]
+        )
+
+        # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
-            if column not in ["Assigned to", "Type"]:  # Already handled above
+            if column not in ["Assigned to", "Type", "Status", "Authorized Drivers"]:  # Already handled above
                 if pd.api.types.is_datetime64_any_dtype(df[column]):
                     new_entry[column] = st.date_input(f"{column}:", value=datetime.today())
                 elif pd.api.types.is_numeric_dtype(df[column]):
@@ -188,6 +207,9 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 elif new_entry["Checkout Date"] > new_entry["Return Date"]:
                     st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
                 else:
+                    # Handle the Authorized Drivers as a comma-separated string
+                    new_entry["Authorized Drivers"] = ", ".join(new_entry["Authorized Drivers"])
+
                     # Append the new entry to the DataFrame
                     new_row_df = pd.DataFrame([new_entry])
                     df = pd.concat([df, new_row_df], ignore_index=True)
