@@ -33,7 +33,7 @@ show_legend = st.checkbox("Show Legend", value=False)
 today = datetime.today()
 start_range = today - timedelta(weeks=2)  # 2 weeks ago
 end_range = today + timedelta(weeks=4)    # 4 weeks from now
-week_range = end_range + timedelta(weeks=10)
+week_range = end_range + timedelta(weeks=10)   # grids timeframe
 # Create the Gantt chart
 fig = px.timeline(
     df,
@@ -119,6 +119,11 @@ fig.update_layout(
 
 # Display the Gantt chart full screen
 st.plotly_chart(fig, use_container_width=True)
+
+# Add a dropdown to display the DataFrame
+st.subheader("View Data Table")
+columns = st.multiselect("Select Columns to Display:", df.columns, default=df.columns.tolist())
+st.dataframe(df[columns])  # Display the selected columns
 
 # Secure edit/delete and create entry section
 with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
