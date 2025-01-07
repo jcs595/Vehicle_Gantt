@@ -101,7 +101,7 @@ for idx, label in enumerate(unique_y_values):
         type="line",
         x0=start_range,
         y0=idx - 0.5,  # Align with the row's center
-        x1=end_range,
+        x1=week_range,
         y1=idx - 0.5,
         xref="x",
         yref="y",
