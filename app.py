@@ -165,7 +165,10 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     df = pd.concat([df, new_row_df], ignore_index=True)
                     df.reset_index(drop=True, inplace=True)  # Reset index
                     df["Unique ID"] = df.index  # Reassign Unique ID
-                    st.success("New entry added successfully!")
+
+                    # Save the updated DataFrame to the Excel file
+                    df.to_excel(file_path, index=False, engine="openpyxl")
+                    st.success("New entry added and saved successfully!")
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
 
