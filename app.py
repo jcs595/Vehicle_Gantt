@@ -211,33 +211,30 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 else:
                     new_entry[column] = st.text_input(f"{column}:")
 
-        # **Edit Entry Section Nested in Dropdown**
-        with st.expander("Edit Existing Entries"):
-            st.subheader("Edit Existing Entry")
-            selected_id = st.selectbox(
-                "Select an entry to edit:",
-                options=df["Unique ID"].values,
-                format_func=lambda
-                    x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
-                if x in df["Unique ID"].values else "Unknown Entry"
-            )
-
-            st.write("Selected Entry Details:")
-            st.write(df.loc[selected_id])
-
-            edited_row = {}
-            for column in df.columns[:-1]:  # Exclude Unique ID
-                if pd.api.types.is_datetime64_any_dtype(df[column]):
-                    edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
-                elif pd.api.types.is_numeric_dtype(df[column]):
-                    edited_row[column] = st.number_input(f"{column}:", value=df.loc[selected_id, column])
+        # Add entry button
+        if st.button("Add Entry"):
+            try:
+                if not new_entry["Assigned to"] or not new_entry["Type"]:
+                    st.error("Error: 'Assigned to' and 'Type' cannot be empty.")
+                elif new_entry["Checkout Date"] > new_entry["Return Date"]:
+                    st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
+                elif new_entry["Vehicle #"] is None:
+                    st.error("Error: Vehicle # could not be derived. Ensure Type starts with a numeric value.")
                 else:
-                    edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
+                    # Handle the Authorized Drivers as a comma-separated string
+                    new_entry["Authorized Drivers"] = ", ".join(new_entry["Authorized Drivers"])
 
-            if st.button("Update Entry"):
-                for key, value in edited_row.items():
-                    df.at[selected_id, key] = value
-                st.success("Entry updated successfully!")
+                    # Append the new entry to the DataFrame
+                    new_row_df = pd.DataFrame([new_entry])
+                    df = pd.concat([df, new_row_df], ignore_index=True)
+                    df.reset_index(drop=True, inplace=True)  # Reset index
+                    df["Unique ID"] = df.index  # Reassign Unique ID
+
+                    # Save the updated DataFrame to the Excel file
+                    df.to_excel(file_path, index=False, engine="openpyxl")
+                    st.success("New entry added and saved successfully!")
+            except Exception as e:
+                st.error(f"Failed to add entry: {e}")
 
         # **Bulk Delete Section Nested in Dropdown**
         with st.expander("Bulk Delete Entries"):
@@ -272,105 +269,33 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     except Exception as e:
                         st.error(f"Failed to delete entries: {e}")
 
+        # **Edit Entry Section Nested in Dropdown**
+        with st.expander("Edit Existing Entries"):
+            st.subheader("Edit Existing Entry")
+            selected_id = st.selectbox(
+                "Select an entry to edit:",
+                options=df["Unique ID"].values,
+                format_func=lambda
+                    x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
+                if x in df["Unique ID"].values else "Unknown Entry"
+            )
 
-        # Add entry button
-        if st.button("Add Entry"):
-            try:
-                if not new_entry["Assigned to"] or not new_entry["Type"]:
-                    st.error("Error: 'Assigned to' and 'Type' cannot be empty.")
-                elif new_entry["Checkout Date"] > new_entry["Return Date"]:
-                    st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
-                elif new_entry["Vehicle #"] is None:
-                    st.error("Error: Vehicle # could not be derived. Ensure Type starts with a numeric value.")
+            st.write("Selected Entry Details:")
+            st.write(df.loc[selected_id])
+
+            edited_row = {}
+            for column in df.columns[:-1]:  # Exclude Unique ID
+                if pd.api.types.is_datetime64_any_dtype(df[column]):
+                    edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
+                elif pd.api.types.is_numeric_dtype(df[column]):
+                    edited_row[column] = st.number_input(f"{column}:", value=df.loc[selected_id, column])
                 else:
-                    # Handle the Authorized Drivers as a comma-separated string
-                    new_entry["Authorized Drivers"] = ", ".join(new_entry["Authorized Drivers"])
+                    edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
 
-                    # Append the new entry to the DataFrame
-                    new_row_df = pd.DataFrame([new_entry])
-                    df = pd.concat([df, new_row_df], ignore_index=True)
-                    df.reset_index(drop=True, inplace=True)  # Reset index
-                    df["Unique ID"] = df.index  # Reassign Unique ID
-
-                    # Save the updated DataFrame to the Excel file
-                    df.to_excel(file_path, index=False, engine="openpyxl")
-                    st.success("New entry added and saved successfully!")
-            except Exception as e:
-                st.error(f"Failed to add entry: {e}")
-
-        # **2. Edit Existing Entry**
-        st.subheader("Edit Entry")
-        selected_id = st.selectbox(
-            "Select an entry to edit:",
-            options=df["Unique ID"].values,
-            format_func=lambda
-                x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
-            if x in df["Unique ID"].values else "Unknown Entry"
-        )
-
-        st.write("Selected Entry Details:")
-        st.write(df.loc[selected_id])
-
-        edited_row = {}
-        for column in df.columns[:-1]:  # Exclude Unique ID
-            if pd.api.types.is_datetime64_any_dtype(df[column]):
-                edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
-            elif pd.api.types.is_numeric_dtype(df[column]):
-                edited_row[column] = st.number_input(f"{column}:", value=df.loc[selected_id, column])
-            else:
-                edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
-
-        if st.button("Update Entry"):
-            for key, value in edited_row.items():
-                df.at[selected_id, key] = value
-            st.success("Entry updated successfully!")
-
-        # **3. Delete an Entry**
-        st.subheader("Delete Entry")
-        if st.button("Delete Entry"):
-            df = df.drop(index=selected_id).reset_index(drop=True)  # Reset index after deletion
-            df["Unique ID"] = df.index  # Reassign Unique ID
-            st.success("Entry deleted successfully!")
-
-        # **2. Bulk Delete Entries by Date Range**
-        st.subheader("Bulk Delete Entries (Save copy before deleting")
-        start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
-        end_date = st.date_input("End Date:", value=datetime.today())
-
-        # Convert `start_date` and `end_date` to `pd.Timestamp`
-        start_date = pd.Timestamp(start_date)
-        end_date = pd.Timestamp(end_date)
-
-        # Filter the entries within the specified date range
-        filtered_df = df[(df["Checkout Date"] >= start_date) &
-                         (df["Return Date"] <= end_date)]
-
-        st.write("Entries to be deleted:")
-        st.dataframe(filtered_df)
-
-        # First confirmation button
-        if st.button("Confirm Bulk Deletion"):
-            st.warning("Are you sure? This action cannot be undone!")
-            # Second confirmation button
-            if st.button("Confirm and Delete"):
-                try:
-                    # Drop the filtered rows
-                    df = df.drop(filtered_df.index).reset_index(drop=True)
-                    df["Unique ID"] = df.index  # Reassign Unique ID
-
-                    # Save changes to the Excel file
-                    df.to_excel(file_path, index=False, engine="openpyxl")
-                    st.success("Selected entries have been deleted and saved successfully!")
-                except Exception as e:
-                    st.error(f"Failed to delete entries: {e}")
-
-        # **Save Changes**
-        if st.button("Save Changes"):
-            try:
-                df.to_excel(file_path, index=False, engine="openpyxl")
-                st.success("Changes saved to the Excel file!")
-            except Exception as e:
-                st.error(f"Failed to save changes: {e}")
+            if st.button("Update Entry"):
+                for key, value in edited_row.items():
+                    df.at[selected_id, key] = value
+                st.success("Entry updated successfully!")
 
     else:
         st.error("Incorrect passcode. Access denied!")
