@@ -182,6 +182,12 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         type_options = df["Type"].dropna().unique().tolist()
         new_entry["Type"] = st.selectbox("Type:", options=[""] + type_options)
 
+        # Automatically populate the Vehicle # based on the first 3 characters of the Type
+        if new_entry["Type"]:
+            new_entry["Vehicle #"] = new_entry["Type"][:3]  # Extract the first 3 characters
+        else:
+            new_entry["Vehicle #"] = ""
+
         # "Status" field as a Boolean dropdown
         new_entry["Status"] = st.selectbox("Status:", options=["Confirmed", "Reserved"])
 
