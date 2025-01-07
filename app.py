@@ -121,9 +121,10 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # Add a dropdown to display the DataFrame
-st.subheader("View Data Table")
-columns = st.multiselect("Select Columns to Display:", df.columns, default=df.columns.tolist())
-st.dataframe(df[columns])  # Display the selected columns
+with st.expander("View and Filter Data Table"):
+    st.subheader("Filter and View Data Table")
+    columns = st.multiselect("Select Columns to Display:", df.columns, default=df.columns.tolist())
+    st.dataframe(df[columns])  # Display the selected columns
 
 # Secure edit/delete and create entry section
 with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
