@@ -27,9 +27,9 @@ try:
         x_end="Return Date",
         y="Type",
         color="Assigned to",
-        title="Vehicle Assignments",
+        title="Vehicle Checkout",
         hover_data=["Unique ID", "Assigned to", "Status", "Type", "Checkout Date", "Return Date"],
-        labels={"Assigned to": "Vehicle"}
+        #labels={"Assigned to": "Vehicle"}
     )
 
     # Update layout for better visualization
