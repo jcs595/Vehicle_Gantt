@@ -23,7 +23,7 @@ except Exception as e:
     st.stop()
 
 # Full-screen Gantt chart
-st.title("Interactive Vehicle Assignment Gantt Chart")
+#st.title("Interactive Vehicle Assignment Gantt Chart")
 st.markdown("###")
 
 # Add a button to toggle the legend
