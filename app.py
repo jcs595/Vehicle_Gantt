@@ -158,7 +158,6 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
                     new_row_df = pd.DataFrame([new_entry])
                     df = pd.concat([df, new_row_df], ignore_index=True)
                     st.success("New entry added successfully!")
-                    st.experimental_set_query_params(refresh=True) # Auto-refresh the app
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
 
