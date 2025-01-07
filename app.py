@@ -19,7 +19,7 @@ if not st.session_state.popup_shown:
         st.markdown("""
         ## Key Tips for Using the App:
         - **Legend Toggle**: Use the "Show Legend" checkbox above the chart to toggle the legend visibility.
-        - **Navigate chart**: Tools for navigating schedule are in to top right of graph. 
+        - **Navigate chart**: Tools for navigating schedule are in pop up to top right of graph. 
         - **Phone Use**: Drag finger along numbers on side of chart to scroll. 
                 
         """)
