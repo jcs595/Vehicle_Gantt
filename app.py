@@ -270,14 +270,18 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             df["Unique ID"] = df.index  # Reassign Unique ID
             st.success("Entry deleted successfully!")
 
-        # **4. Bulk Delete Entries by Date Range**
-        st.subheader("Bulk Delete Entries (Save copy before deletion)")
+        # **2. Bulk Delete Entries by Date Range**
+        st.subheader("Bulk Delete Entries (Save copy before deleting")
         start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
         end_date = st.date_input("End Date:", value=datetime.today())
 
+        # Convert `start_date` and `end_date` to `pd.Timestamp`
+        start_date = pd.Timestamp(start_date)
+        end_date = pd.Timestamp(end_date)
+
         # Filter the entries within the specified date range
-        filtered_df = df[(df["Checkout Date"] >= pd.Timestamp(start_date)) &
-                             (df["Return Date"] <= pd.Timestamp(end_date))]
+        filtered_df = df[(df["Checkout Date"] >= start_date) &
+                         (df["Return Date"] <= end_date)]
 
         st.write("Entries to be deleted:")
         st.dataframe(filtered_df)
@@ -296,7 +300,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     df.to_excel(file_path, index=False, engine="openpyxl")
                     st.success("Selected entries have been deleted and saved successfully!")
                 except Exception as e:
-                        st.error(f"Failed to delete entries: {e}")
+                    st.error(f"Failed to delete entries: {e}")
 
         # **Save Changes**
         if st.button("Save Changes"):
