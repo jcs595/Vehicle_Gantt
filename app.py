@@ -198,7 +198,8 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
-            if column not in ["Assigned to", "Type", "Status", "Authorized Drivers"]:  # Already handled above
+            if column not in ["Assigned to", "Type", "Vehicle #", "Status",
+                              "Authorized Drivers"]:  # Already handled above
                 if pd.api.types.is_datetime64_any_dtype(df[column]):
                     new_entry[column] = st.date_input(f"{column}:", value=datetime.today())
                 elif pd.api.types.is_numeric_dtype(df[column]):
