@@ -43,7 +43,7 @@ fig = px.timeline(
     color="Assigned to",
     title="Vehicle Assignments",
     hover_data=["Unique ID", "Assigned to", "Status", "Type", "Checkout Date", "Return Date"],
-    labels={"Assigned to": "Vehicle"}
+    #labels={"Assigned to": "Vehicle"}
 )
 
 # Limit the y-axis labels to three characters
