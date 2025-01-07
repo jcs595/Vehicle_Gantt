@@ -166,8 +166,9 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         st.subheader("Create New Entry")
         new_entry = {}
 
-        # Dynamic dropdown options for Assigned to and Authorized Drivers
+        # Dynamic dropdown options for Assigned to, Type, and Authorized Drivers
         assigned_to_options = df["Assigned to"].dropna().unique().tolist()
+        type_options = df["Type"].dropna().unique().tolist()  # Type field options
         driver_options = df["Authorized Drivers"].dropna().str.split(",").explode().unique().tolist()
 
         # "Assigned to" field with an option to add a new name
@@ -178,15 +179,18 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         if selected_assigned_to and not new_entry["Assigned to"]:
             new_entry["Assigned to"] = selected_assigned_to
 
-        # "Type" field
-        type_options = df["Type"].dropna().unique().tolist()
-        new_entry["Type"] = st.selectbox("Type:", options=[""] + type_options)
+        # "Type" field (dropdown for vehicle types)
+        new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_options)
 
-        # Automatically populate the Vehicle # based on the first 3 characters of the Type
+        # Automatically populate the Vehicle # based on the first 3 characters of the Type as an integer
         if new_entry["Type"]:
-            new_entry["Vehicle #"] = new_entry["Type"][:3]  # Extract the first 3 characters
+            try:
+                new_entry["Vehicle #"] = int(new_entry["Type"][:3])  # Extract first 3 characters and convert to integer
+            except ValueError:
+                st.error("The Type field must start with a numeric value for Vehicle # to be derived.")
+                new_entry["Vehicle #"] = None
         else:
-            new_entry["Vehicle #"] = ""
+            new_entry["Vehicle #"] = None
 
         # "Status" field as a Boolean dropdown
         new_entry["Status"] = st.selectbox("Status:", options=["Confirmed", "Reserved"])
@@ -207,12 +211,15 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 else:
                     new_entry[column] = st.text_input(f"{column}:")
 
+        # Add entry button
         if st.button("Add Entry"):
             try:
                 if not new_entry["Assigned to"] or not new_entry["Type"]:
                     st.error("Error: 'Assigned to' and 'Type' cannot be empty.")
                 elif new_entry["Checkout Date"] > new_entry["Return Date"]:
                     st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
+                elif new_entry["Vehicle #"] is None:
+                    st.error("Error: Vehicle # could not be derived. Ensure Type starts with a numeric value.")
                 else:
                     # Handle the Authorized Drivers as a comma-separated string
                     new_entry["Authorized Drivers"] = ", ".join(new_entry["Authorized Drivers"])
