@@ -66,6 +66,48 @@ fig.add_shape(
     name="Today"
 )
 
+# Add weekly and daily grid lines
+current_date = start_range
+while current_date <= end_range:
+    # Add weekly grid lines (thicker lines)
+    if current_date.weekday() == 0:  # Monday
+        fig.add_shape(
+            type="line",
+            x0=current_date,
+            y0=0,
+            x1=current_date,
+            y1=1,
+            xref="x",
+            yref="paper",
+            line=dict(color="gray", width=1.5, dash="solid"),
+        )
+    # Add daily grid lines (thinner lines)
+    fig.add_shape(
+        type="line",
+        x0=current_date,
+        y0=0,
+        x1=current_date,
+        y1=1,
+        xref="x",
+        yref="paper",
+        line=dict(color="lightgray", width=0.5, dash="dot"),
+    )
+    current_date += timedelta(days=1)
+
+# Add horizontal grid lines only for used rows
+unique_y_values = df["Type"].unique()
+for idx, label in enumerate(unique_y_values):
+    fig.add_shape(
+        type="line",
+        x0=start_range,
+        y0=idx - 0.5,  # Align with the row's center
+        x1=end_range,
+        y1=idx - 0.5,
+        xref="x",
+        yref="y",
+        line=dict(color="lightgray", width=1, dash="dot"),
+    )
+
 # Update layout for dynamic zoom and better visualization
 fig.update_layout(
     height=800,  # Adjust chart height to fit full screen
