@@ -202,7 +202,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             try:
                 df.to_excel(file_path, index=False, engine="openpyxl")
                 st.success("Changes saved to the Excel file!")
-                st.experimental_rerun()   # Auto-refresh the app
             except Exception as e:
                 st.error(f"Failed to save changes: {e}")
 
