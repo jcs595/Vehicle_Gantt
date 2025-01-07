@@ -39,6 +39,11 @@ fig = px.timeline(
 
 # Update layout for better visualization
 fig.update_yaxes(categoryorder="total ascending")
+fig.update_layout(
+    height=800,  # Adjust chart height to fit full screen
+    title_font_size=20,
+    margin=dict(l=0, r=0, t=40, b=0)  # Minimize margins
+)
 st.plotly_chart(fig, use_container_width=True)
 
 # Secure edit/delete section
