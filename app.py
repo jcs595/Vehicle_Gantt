@@ -211,6 +211,68 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 else:
                     new_entry[column] = st.text_input(f"{column}:")
 
+        # **Edit Entry Section Nested in Dropdown**
+        with st.expander("Edit Existing Entries"):
+            st.subheader("Edit Existing Entry")
+            selected_id = st.selectbox(
+                "Select an entry to edit:",
+                options=df["Unique ID"].values,
+                format_func=lambda
+                    x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
+                if x in df["Unique ID"].values else "Unknown Entry"
+            )
+
+            st.write("Selected Entry Details:")
+            st.write(df.loc[selected_id])
+
+            edited_row = {}
+            for column in df.columns[:-1]:  # Exclude Unique ID
+                if pd.api.types.is_datetime64_any_dtype(df[column]):
+                    edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
+                elif pd.api.types.is_numeric_dtype(df[column]):
+                    edited_row[column] = st.number_input(f"{column}:", value=df.loc[selected_id, column])
+                else:
+                    edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
+
+            if st.button("Update Entry"):
+                for key, value in edited_row.items():
+                    df.at[selected_id, key] = value
+                st.success("Entry updated successfully!")
+
+        # **Bulk Delete Section Nested in Dropdown**
+        with st.expander("Bulk Delete Entries"):
+            st.subheader("Bulk Delete Entries by Date Range")
+            start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
+            end_date = st.date_input("End Date:", value=datetime.today())
+
+            # Convert `start_date` and `end_date` to `pd.Timestamp`
+            start_date = pd.Timestamp(start_date)
+            end_date = pd.Timestamp(end_date)
+
+            # Filter the entries within the specified date range
+            filtered_df = df[(df["Checkout Date"] >= start_date) &
+                             (df["Return Date"] <= end_date)]
+
+            st.write("Entries to be deleted:")
+            st.dataframe(filtered_df)
+
+            # First confirmation button
+            if st.button("Confirm Bulk Deletion"):
+                st.warning("Are you sure? This action cannot be undone!")
+                # Second confirmation button
+                if st.button("Confirm and Delete"):
+                    try:
+                        # Drop the filtered rows
+                        df = df.drop(filtered_df.index).reset_index(drop=True)
+                        df["Unique ID"] = df.index  # Reassign Unique ID
+
+                        # Save changes to the Excel file
+                        df.to_excel(file_path, index=False, engine="openpyxl")
+                        st.success("Selected entries have been deleted and saved successfully!")
+                    except Exception as e:
+                        st.error(f"Failed to delete entries: {e}")
+
+
         # Add entry button
         if st.button("Add Entry"):
             try:
