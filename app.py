@@ -163,6 +163,19 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         st.success("Access granted!")
 
         # **1. Create a New Entry**
+        # Function to load and parse the type list from the TXT file
+        def load_type_list(file_path):
+            try:
+                with open(file_path, "r") as file:
+                    lines = file.readlines()
+                    return [line.strip() for line in lines if line.strip()]  # Remove empty lines
+            except FileNotFoundError:
+                return []
+
+
+        # Load the type list from the uploaded file
+        type_list = load_type_list("type_list.txt")
+
         st.subheader("Create New Entry")
         new_entry = {}
 
@@ -180,14 +193,14 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             new_entry["Assigned to"] = selected_assigned_to
 
         # "Type" field (dropdown for vehicle types)
-        new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_options)
+        new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
 
-        # Automatically populate the Vehicle # based on the first 3 characters of the Type as an integer
+        # Automatically populate the Vehicle # based on the first 3 characters of Type
         if new_entry["Type"]:
             try:
-                new_entry["Vehicle #"] = int(new_entry["Type"][:3])  # Extract first 3 characters and convert to integer
+                new_entry["Vehicle #"] = int(new_entry["Type"].split("-")[0].strip())  # Extract first part as integer
             except ValueError:
-                st.error("The Type field must start with a numeric value for Vehicle # to be derived.")
+                st.error("The Type must start with a numeric value for Vehicle #.")
                 new_entry["Vehicle #"] = None
         else:
             new_entry["Vehicle #"] = None
