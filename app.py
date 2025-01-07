@@ -29,6 +29,11 @@ st.markdown("###")
 # Add a button to toggle the legend
 show_legend = st.checkbox("Show Legend", value=False)
 
+# Calculate dynamic zoom range: past 2 weeks and next 4 weeks
+today = datetime.today()
+start_range = today - timedelta(weeks=2)  # 2 weeks ago
+end_range = today + timedelta(weeks=4)    # 4 weeks from now
+
 # Create the Gantt chart
 fig = px.timeline(
     df,
@@ -49,7 +54,6 @@ fig.update_yaxes(
 )
 
 # Add today's date as a vertical red line
-today = datetime.today().strftime('%Y-%m-%d')
 fig.add_shape(
     type="line",
     x0=today,
@@ -62,12 +66,13 @@ fig.add_shape(
     name="Today"
 )
 
-# Update layout for better visualization
+# Update layout for dynamic zoom and better visualization
 fig.update_layout(
     height=800,  # Adjust chart height to fit full screen
     title_font_size=20,
     margin=dict(l=0, r=0, t=40, b=0),  # Minimize margins
     showlegend=show_legend,  # Toggle legend based on the checkbox
+    xaxis_range=[start_range, end_range]  # Set initial zoom range
 )
 
 # Display the Gantt chart full screen
