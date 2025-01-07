@@ -158,7 +158,7 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
                     new_row_df = pd.DataFrame([new_entry])
                     df = pd.concat([df, new_row_df], ignore_index=True)
                     st.success("New entry added successfully!")
-                    st.experimental_rerun()  # Auto-refresh the app
+                    st.experimental_set_query_params(refresh=True) # Auto-refresh the app
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
 
@@ -186,21 +186,21 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
             for key, value in edited_row.items():
                 df.at[selected_id, key] = value
             st.success("Entry updated successfully!")
-            st.experimental_rerun()  # Auto-refresh the app
+            st.experimental_set_query_params(refresh=True)  # Auto-refresh the app
 
         # **3. Delete an Entry**
         st.subheader("Delete Entry")
         if st.button("Delete Entry"):
             df = df.drop(index=selected_id).reset_index(drop=True)
             st.success("Entry deleted successfully!")
-            st.experimental_rerun()  # Auto-refresh the app
+            st.experimental_set_query_params(refresh=True)  # Auto-refresh the app
 
         # **Save Changes**
         if st.button("Save Changes"):
             try:
                 df.to_excel(file_path, index=False, engine="openpyxl")
                 st.success("Changes saved to the Excel file!")
-                st.experimental_rerun()  # Auto-refresh the app
+                st.experimental_set_query_params(refresh=True)  # Auto-refresh the app
             except Exception as e:
                 st.error(f"Failed to save changes: {e}")
 
