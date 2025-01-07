@@ -9,6 +9,22 @@ file_path = r"Vehicle_Checkout_List.xlsx"
 # Set the app to wide mode
 st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_icon="📊")
 
+# Check if the popup has been displayed already
+if "popup_shown" not in st.session_state:
+    st.session_state.popup_shown = False  # Initialize the state
+
+# Display the popup if it hasn't been shown yet
+if not st.session_state.popup_shown:
+    with st.expander("🚀 Welcome to SoF Vehicle Assignments! (Click to Dismiss)"):
+        st.markdown("""
+        ## Key Tips for Using the App:
+        - **Legend Toggle**: Use the "Show Legend" checkbox above the chart to toggle the legend visibility.
+        - **Navigate chart**: Tools for navigating schedule are in to top right of graph. 
+        - **Phone Use**: Drag finger along numbers on side of chart to scroll. 
+                
+        """)
+        st.button("Close Tips", on_click=lambda: setattr(st.session_state, "popup_shown", True))
+
 # Streamlit app
 st.title("SoF Vehicle Assignments")
 
