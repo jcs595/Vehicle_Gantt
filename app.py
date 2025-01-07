@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from datetime import datetime
 
 # Path to the Excel file
 file_path = r"Visor Archive.xlsx"
@@ -45,6 +46,20 @@ fig.update_yaxes(
     ticktext=[label[:3] for label in df["Type"]],  # Truncated labels
     tickvals=df["Type"],
     title=None,  # Hide Y-axis title
+)
+
+# Add today's date as a vertical red line
+today = datetime.today().strftime('%Y-%m-%d')
+fig.add_shape(
+    type="line",
+    x0=today,
+    y0=0,
+    x1=today,
+    y1=1,
+    xref="x",
+    yref="paper",
+    line=dict(color="red", width=2, dash="dot"),
+    name="Today"
 )
 
 # Update layout for better visualization
