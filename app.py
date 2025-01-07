@@ -234,32 +234,32 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             df["Unique ID"] = df.index  # Reassign Unique ID
             st.success("Entry deleted successfully!")
 
-            # **4. Bulk Delete Entries by Date Range**
-            st.subheader("Bulk Delete Entries (Save copy before deletion)")
-            start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
-            end_date = st.date_input("End Date:", value=datetime.today())
+        # **4. Bulk Delete Entries by Date Range**
+        st.subheader("Bulk Delete Entries (Save copy before deletion)")
+        start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
+        end_date = st.date_input("End Date:", value=datetime.today())
 
-            # Filter the entries within the specified date range
-            filtered_df = df[(df["Checkout Date"] >= pd.Timestamp(start_date)) &
+        # Filter the entries within the specified date range
+        filtered_df = df[(df["Checkout Date"] >= pd.Timestamp(start_date)) &
                              (df["Return Date"] <= pd.Timestamp(end_date))]
 
-            st.write("Entries to be deleted:")
-            st.dataframe(filtered_df)
+        st.write("Entries to be deleted:")
+        st.dataframe(filtered_df)
 
-            # First confirmation button
-            if st.button("Confirm Bulk Deletion"):
-                st.warning("Are you sure? This action cannot be undone!")
-                # Second confirmation button
-                if st.button("Confirm and Delete"):
-                    try:
-                        # Drop the filtered rows
-                        df = df.drop(filtered_df.index).reset_index(drop=True)
-                        df["Unique ID"] = df.index  # Reassign Unique ID
+        # First confirmation button
+        if st.button("Confirm Bulk Deletion"):
+            st.warning("Are you sure? This action cannot be undone!")
+            # Second confirmation button
+            if st.button("Confirm and Delete"):
+                try:
+                    # Drop the filtered rows
+                    df = df.drop(filtered_df.index).reset_index(drop=True)
+                    df["Unique ID"] = df.index  # Reassign Unique ID
 
-                        # Save changes to the Excel file
-                        df.to_excel(file_path, index=False, engine="openpyxl")
-                        st.success("Selected entries have been deleted and saved successfully!")
-                    except Exception as e:
+                    # Save changes to the Excel file
+                    df.to_excel(file_path, index=False, engine="openpyxl")
+                    st.success("Selected entries have been deleted and saved successfully!")
+                except Exception as e:
                         st.error(f"Failed to delete entries: {e}")
 
         # **Save Changes**
