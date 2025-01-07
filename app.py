@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 file_path = r"Vehicle_Checkout_List.xlsx"
 
 # Set the app to wide mode
-st.set_page_config(layout="wide", page_title="Vehicle Assignment Gantt Chart", page_icon="📊")
+st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_icon="📊")
 
 # Streamlit app
-st.title("Vehicle Assignment Gantt Chart")
+st.title("SoF Vehicle Assignments")
 
 # Load the data
 try:
