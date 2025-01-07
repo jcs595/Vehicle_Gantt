@@ -131,26 +131,34 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
         # **1. Create a New Entry**
         st.subheader("Create New Entry")
         new_entry = {}
-        for column in df.columns[:-1]:  # Exclude the "Unique ID" column
-            if pd.api.types.is_datetime64_any_dtype(df[column]):
-                new_entry[column] = st.date_input(f"{column}:", value=datetime.today())
-            elif pd.api.types.is_numeric_dtype(df[column]):
-                new_entry[column] = st.number_input(f"{column}:", value=0)
-            else:
-                new_entry[column] = st.text_input(f"{column}:")
+        # Dynamic dropdown options for Assigned to and Type
+        assigned_to_options = df["Assigned to"].dropna().unique().tolist()
+        type_options = df["Type"].dropna().unique().tolist()
+
+        new_entry["Assigned to"] = st.selectbox("Assigned to:", options=[""] + assigned_to_options)
+        new_entry["Type"] = st.selectbox("Type:", options=[""] + type_options)
+
+        for column in df.columns[:-1]:  # Exclude "Unique ID"
+            if column not in ["Assigned to", "Type"]:  # Already handled above
+                if pd.api.types.is_datetime64_any_dtype(df[column]):
+                    new_entry[column] = st.date_input(f"{column}:", value=datetime.today())
+                elif pd.api.types.is_numeric_dtype(df[column]):
+                    new_entry[column] = st.number_input(f"{column}:", value=0)
+                else:
+                    new_entry[column] = st.text_input(f"{column}:")
 
         if st.button("Add Entry"):
             try:
-                # Ensure required fields are filled
-                if new_entry["Checkout Date"] > new_entry["Return Date"]:
-                    st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
-                elif not new_entry["Assigned to"] or not new_entry["Type"]:
+                if not new_entry["Assigned to"] or not new_entry["Type"]:
                     st.error("Error: 'Assigned to' and 'Type' cannot be empty.")
+                elif new_entry["Checkout Date"] > new_entry["Return Date"]:
+                    st.error("Error: 'Checkout Date' cannot be after 'Return Date'.")
                 else:
                     # Append the new entry to the DataFrame
                     new_row_df = pd.DataFrame([new_entry])
                     df = pd.concat([df, new_row_df], ignore_index=True)
                     st.success("New entry added successfully!")
+                    st.experimental_rerun()  # Auto-refresh the app
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
 
@@ -178,17 +186,23 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
             for key, value in edited_row.items():
                 df.at[selected_id, key] = value
             st.success("Entry updated successfully!")
+            st.experimental_rerun()  # Auto-refresh the app
 
         # **3. Delete an Entry**
         st.subheader("Delete Entry")
         if st.button("Delete Entry"):
             df = df.drop(index=selected_id).reset_index(drop=True)
             st.success("Entry deleted successfully!")
+            st.experimental_rerun()  # Auto-refresh the app
 
         # **Save Changes**
         if st.button("Save Changes"):
-            df.to_excel(file_path, index=False, engine="openpyxl")
-            st.success("Changes saved to the Excel file!")
+            try:
+                df.to_excel(file_path, index=False, engine="openpyxl")
+                st.success("Changes saved to the Excel file!")
+                st.experimental_rerun()  # Auto-refresh the app
+            except Exception as e:
+                st.error(f"Failed to save changes: {e}")
 
     else:
         st.error("Incorrect passcode. Access denied!")
