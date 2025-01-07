@@ -94,12 +94,13 @@ while current_date <= end_range:
     )
     current_date += timedelta(days=1)
 
-# Add horizontal grid lines
-for idx, label in enumerate(df["Type"]):
+# Add horizontal grid lines only for used rows
+unique_y_values = df["Type"].unique()
+for idx, label in enumerate(unique_y_values):
     fig.add_shape(
         type="line",
         x0=start_range,
-        y0=idx - 0.5,  # Center line for each row
+        y0=idx - 0.5,  # Align with the row's center
         x1=end_range,
         y1=idx - 0.5,
         xref="x",
