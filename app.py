@@ -5,57 +5,66 @@ import streamlit as st
 # Path to the Excel file
 file_path = r"Visor Archive.xlsx"
 
+# Set the app to wide mode
+st.set_page_config(layout="wide", page_title="Vehicle Assignment Gantt Chart", page_icon="📊")
+
 # Streamlit app
 st.title("Vehicle Assignment Gantt Chart")
 
+# Load the data
 try:
-    # Load the Excel file
     df = pd.read_excel(file_path, engine="openpyxl")
-
-    # Ensure date columns are properly converted
     df['Checkout Date'] = pd.to_datetime(df['Checkout Date'])
     df['Return Date'] = pd.to_datetime(df['Return Date'])
+    df["Unique ID"] = df.index  # Add a unique identifier for each row
+except Exception as e:
+    st.error(f"Error loading Excel file: {e}")
+    st.stop()
 
-    # Add a unique identifier for each row
-    df["Unique ID"] = df.index
+# Display the Gantt chart first
+st.title("Interactive Vehicle Assignment Gantt Chart")
+st.subheader("Gantt Chart")
 
-    # Gantt chart panel
-    st.subheader("Interactive Gantt Chart")
-    fig = px.timeline(
-        df,
-        x_start="Checkout Date",
-        x_end="Return Date",
-        y="Type",
-        color="Assigned to",
-        title="Vehicle Checkout",
-        hover_data=["Unique ID", "Assigned to", "Status", "Type", "Checkout Date", "Return Date"],
-        #labels={"Assigned to": "Vehicle"}
-    )
+# Create the Gantt chart
+fig = px.timeline(
+    df,
+    x_start="Checkout Date",
+    x_end="Return Date",
+    y="Type",
+    color="Assigned to",
+    title="Vehicle Assignments",
+    hover_data=["Unique ID", "Assigned to", "Status", "Type", "Checkout Date", "Return Date"],
+    labels={"Assigned to": "Vehicle"}
+)
 
-    # Update layout for better visualization
-    fig.update_yaxes(categoryorder="total ascending")
+# Update layout for better visualization
+fig.update_yaxes(categoryorder="total ascending")
+st.plotly_chart(fig, use_container_width=True)
 
-    # Display the Gantt chart
-    st.plotly_chart(fig, use_container_width=True)
+# Secure edit/delete section
+with st.expander("Edit or Delete Entries (Protected)"):
+    # Ask for the passcode
+    passcode = st.text_input("Enter the 4-digit passcode:", type="password")
 
-    # User selects an entry by its unique ID
-    st.subheader("Manage Selected Entry")
-    selected_id = st.number_input(
-        "Enter the Unique ID of the entry to edit/delete:",
-        min_value=0,
-        max_value=len(df) - 1,
-        step=1
-    )
+    # Check if the passcode is correct
+    if passcode == "1234":  # Replace "1234" with your desired passcode
+        st.success("Access granted!")
 
-    if selected_id in df["Unique ID"].values:
-        # Display details of the selected entry
+        # Allow the user to select an entry
+        selected_id = st.selectbox(
+            "Select an entry to edit/delete:",
+            options=df["Unique ID"].values,
+            format_func=lambda x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})",
+        )
+
+        # Show details of the selected entry
         st.write("Selected Entry Details:")
-        st.write(df.loc[df["Unique ID"] == selected_id])
+        st.write(df.loc[selected_id])
 
         # Edit the selected entry
         st.subheader("Edit Entry")
         edited_row = {}
-        for column in df.columns[:-1]:  # Exclude the "Unique ID" column
+        for column in df.columns[:-1]:  # Exclude Unique ID
             if pd.api.types.is_datetime64_any_dtype(df[column]):
                 edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
             elif pd.api.types.is_numeric_dtype(df[column]):
@@ -64,7 +73,6 @@ try:
                 edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
 
         if st.button("Update Entry"):
-            # Update the DataFrame with edited values
             for key, value in edited_row.items():
                 df.at[selected_id, key] = value
             st.success("Entry updated successfully!")
@@ -74,10 +82,10 @@ try:
             df = df.drop(index=selected_id).reset_index(drop=True)
             st.success("Entry deleted successfully!")
 
-    # Save changes to Excel (optional)
-    if st.button("Save Changes"):
-        df.to_excel(file_path, index=False, engine="openpyxl")
-        st.success("Changes saved to the Excel file!")
+        # Save changes to Excel
+        if st.button("Save Changes"):
+            df.to_excel(file_path, index=False, engine="openpyxl")
+            st.success("Changes saved to the Excel file!")
 
-except Exception as e:
-    st.error(f"Error reading or processing the file: {e}")
+    elif passcode:
+        st.error("Incorrect passcode! Access denied.")
