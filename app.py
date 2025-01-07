@@ -46,6 +46,15 @@ fig = px.timeline(
     #labels={"Assigned to": "Vehicle"}
 )
 
+# Sort the y-axis by ascending order of 'Type'
+fig.update_yaxes(
+    categoryorder="array",
+    categoryarray=df["Type"].unique(),  # Use the sorted 'Type' column
+    ticktext=[label[:3] for label in df["Type"]],  # Truncated labels
+    tickvals=df["Type"],
+    title=None,  # Hide Y-axis title
+)
+
 # Limit the y-axis labels to three characters
 fig.update_yaxes(
     ticktext=[label[:3] for label in df["Type"]],  # Truncated labels
