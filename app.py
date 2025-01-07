@@ -18,6 +18,9 @@ try:
     df['Checkout Date'] = pd.to_datetime(df['Checkout Date'])
     df['Return Date'] = pd.to_datetime(df['Return Date'])
     df["Unique ID"] = df.index  # Add a unique identifier for each row
+
+    # Sort the DataFrame by the 'Type' column (ascending order)
+    df = df.sort_values(by="Type", ascending=True)
 except Exception as e:
     st.error(f"Error loading Excel file: {e}")
     st.stop()
