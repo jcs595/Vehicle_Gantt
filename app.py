@@ -33,7 +33,7 @@ show_legend = st.checkbox("Show Legend", value=False)
 today = datetime.today()
 start_range = today - timedelta(weeks=2)  # 2 weeks ago
 end_range = today + timedelta(weeks=4)    # 4 weeks from now
-
+week_range = end_range + timedelta(weeks=10)
 # Create the Gantt chart
 fig = px.timeline(
     df,
@@ -68,7 +68,7 @@ fig.add_shape(
 
 # Add weekly and daily grid lines
 current_date = start_range
-while current_date <= end_range:
+while current_date <= week_range:
     # Add weekly grid lines (thicker lines)
     if current_date.weekday() == 0:  # Monday
         fig.add_shape(
