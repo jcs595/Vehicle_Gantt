@@ -121,7 +121,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # Secure edit/delete and create entry section
-with st.expander("Manage Entries (Create, Edit, Delete)"):
+with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
     # Passcode validation
     passcode = st.text_input("Enter the 4-digit passcode:", type="password")
@@ -157,6 +157,8 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
                     # Append the new entry to the DataFrame
                     new_row_df = pd.DataFrame([new_entry])
                     df = pd.concat([df, new_row_df], ignore_index=True)
+                    df.reset_index(drop=True, inplace=True)  # Reset index
+                    df["Unique ID"] = df.index  # Reassign Unique ID
                     st.success("New entry added successfully!")
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
@@ -166,7 +168,9 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
         selected_id = st.selectbox(
             "Select an entry to edit:",
             options=df["Unique ID"].values,
-            format_func=lambda x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})",
+            format_func=lambda
+                x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
+            if x in df["Unique ID"].values else "Unknown Entry"
         )
 
         st.write("Selected Entry Details:")
@@ -189,7 +193,8 @@ with st.expander("Manage Entries (Create, Edit, Delete)"):
         # **3. Delete an Entry**
         st.subheader("Delete Entry")
         if st.button("Delete Entry"):
-            df = df.drop(index=selected_id).reset_index(drop=True)
+            df = df.drop(index=selected_id).reset_index(drop=True)  # Reset index after deletion
+            df["Unique ID"] = df.index  # Reassign Unique ID
             st.success("Entry deleted successfully!")
 
         # **Save Changes**
