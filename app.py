@@ -36,6 +36,19 @@ if "DEPLOY_KEY" in st.secrets:
         """)
     os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
+# Clone the GitHub repository if not already cloned
+REPO_DIR = Path("repo")
+if not REPO_DIR.exists():
+    st.write("Cloning the repository...")
+    subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
+
+# Change working directory to the repo
+os.chdir(REPO_DIR)
+
+# Pull the latest changes
+st.write("Pulling the latest changes...")
+subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
+
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
 
