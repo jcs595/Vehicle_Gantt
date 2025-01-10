@@ -3,6 +3,12 @@ import plotly.express as px
 import streamlit as st
 from datetime import datetime, timedelta
 
+if "DEPLOY_KEY" not in st.secrets:
+    st.error("DEPLOY_KEY not found in secrets! Make sure you have added it in the Streamlit app settings.")
+else:
+    deploy_key = st.secrets["DEPLOY_KEY"]
+    st.write("Deploy key loaded successfully.")
+
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
 
