@@ -10,7 +10,7 @@ from pathlib import Path
 st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_icon="📊")
 
 # GitHub repository details
-GITHUB_REPO = "jcs595/vehicle_gantt"  # Replace with your repo name
+GITHUB_REPO = "jcs595/Vehicle_Gantt"  # Replace with your repo name
 GITHUB_BRANCH = "master"  # Replace with your branch name
 FILE_PATH = "Vehicle_Checkout_List.xlsx"  # Relative path to the Excel file in the repo
 
