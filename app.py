@@ -2,15 +2,39 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from datetime import datetime, timedelta
+import subprocess
+import os
+from pathlib import Path
 
 # Set the app to wide mode
 st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_icon="📊")
 
-if "DEPLOY_KEY" not in st.secrets:
-    st.error("DEPLOY_KEY not found in secrets! Make sure you have added it in the Streamlit app settings.")
-else:
-    deploy_key = st.secrets["DEPLOY_KEY"]
-    st.write("Deploy key loaded successfully.")
+# GitHub repository details
+GITHUB_REPO = "username/repository-name"  # Replace with your repo name
+GITHUB_BRANCH = "main"  # Replace with your branch name
+FILE_PATH = "Vehicle_Checkout_List.xlsx"  # Relative path to the Excel file in the repo
+
+# Path for the SSH private key and git configuration
+DEPLOY_KEY_PATH = Path("~/.ssh/github_deploy_key").expanduser()
+SSH_CONFIG_PATH = Path("~/.ssh/config").expanduser()
+
+# Ensure private key is available for SSH
+if "DEPLOY_KEY" in st.secrets:
+    DEPLOY_KEY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(DEPLOY_KEY_PATH, "w") as f:
+        f.write(st.secrets["DEPLOY_KEY"])
+    os.chmod(DEPLOY_KEY_PATH, 0o600)  # Restrict permissions
+
+    # Configure SSH for GitHub
+    with open(SSH_CONFIG_PATH, "w") as f:
+        f.write(f"""
+        Host github.com
+            HostName github.com
+            User git
+            IdentityFile {DEPLOY_KEY_PATH}
+            StrictHostKeyChecking no
+        """)
+    os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
