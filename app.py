@@ -45,6 +45,9 @@ if "DEPLOY_KEY" in st.secrets:
 # Change working directory to the repo
 #os.chdir(REPO_DIR)
 
+# Set Git pull strategy to merge (default)
+subprocess.run(["git", "config", "pull.rebase", "false"], check=True)
+
 # Pull the latest changes
 st.write("Pulling the latest changes...")
 subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
