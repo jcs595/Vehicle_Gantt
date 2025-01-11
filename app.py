@@ -42,49 +42,42 @@ if "DEPLOY_KEY" in st.secrets:
         """)
     os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
-# Check if the repo directory exists
-if REPO_DIR.exists():
-    # Verify if it's a valid Git repository
-    if not (REPO_DIR / ".git").exists():
-        shutil.rmtree(REPO_DIR)  # Delete if not a valid repo
-        st.write("Deleted existing invalid repo directory.")
-    else:
-        # If valid, navigate into the repo directory and pull the latest changes
-        os.chdir(REPO_DIR)
-        st.write("Pulling the latest changes...")
+def clone_repo_if_needed():
+    """Clone the repository if it doesn't already exist."""
+    if not REPO_DIR.exists():
+        st.write("Cloning the repository...")
         try:
-            subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
+            subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
         except subprocess.CalledProcessError as e:
-            st.error(f"Failed to pull changes: {e}")
+            st.error(f"Failed to clone repository: {e}")
             st.stop()
-else:
-    # Clone the repository if it doesn't exist
-    st.write("Cloning the repository...")
+    else:
+        st.write("Repository already exists locally.")
+
+
+def push_changes_to_github():
+    """Push changes to GitHub."""
+    st.write("Pushing changes to GitHub...")
     try:
-        subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
+        # Ensure repository is cloned
+        clone_repo_if_needed()
+
+        # Change to repo directory
         os.chdir(REPO_DIR)
-    except subprocess.CalledProcessError as e:
-        st.error(f"Failed to clone repository: {e}")
-        st.stop()
 
+        # Add and commit changes
+        subprocess.run(["git", "add", FILE_PATH, "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"], check=True)
+        subprocess.run(["git", "commit", "-m", "Update Excel and TXT files from Streamlit app"], check=True)
 
-# Function to push changes to GitHub
-def push_to_github(commit_message="Updated data files via Streamlit app"):
-    try:
-        # Stage all changes
-        subprocess.run(
-            ["git", "add", FILE_PATH, "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"],
-            check=True)
-
-        # Commit the changes
-        subprocess.run(["git", "commit", "-m", commit_message], check=True)
-
-        # Push changes to the GitHub repository
+        # Push changes
         subprocess.run(["git", "push", "origin", GITHUB_BRANCH], check=True)
 
-        st.success("Changes pushed to GitHub successfully!")
+        st.success("Changes successfully pushed to GitHub!")
     except subprocess.CalledProcessError as e:
-        st.error(f"Failed to push changes to GitHub: {e}")
+        st.error(f"Failed to push changes: {e}")
+    finally:
+        # Return to the original directory to avoid issues
+        os.chdir("..")
 
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
