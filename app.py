@@ -165,6 +165,22 @@ fig = px.timeline(
     #labels={"Assigned to": "Vehicle"}
 )
 
+# Add striped pattern for 'Reserved' bars
+for _, row in df.iterrows():
+    if row['Status'] == 'Reserved':
+        fig.add_shape(
+            type="rect",
+            x0=row['Checkout Date'],
+            x1=row['Return Date'],
+            y0=df['Type'].tolist().index(row['Type']) - 0.4,
+            y1=df['Type'].tolist().index(row['Type']) + 0.4,
+            xref="x",
+            yref="y",
+            fillcolor="rgba(0,0,0,0)",  # Transparent
+            line=dict(width=0),  # No border
+            layer="below",
+            pattern=dict(fillmode="overlay", shape="stripe", size=10, direction="45"))
+
 # Sort the y-axis by ascending order of 'Type'
 fig.update_yaxes(
     categoryorder="array",
