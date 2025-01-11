@@ -48,10 +48,24 @@ os.chdir(REPO_DIR)
 # Set Git pull strategy to merge (default)
 subprocess.run(["git", "config", "pull.rebase", "false"], check=True)
 
+# Clean untracked files before pulling
+subprocess.run(["git", "add", "-A"], check=True)  # Stage changes
+subprocess.run(["git", "commit", "-m", "Backup before pull"], check=False)  # Commit if changes exist
+subprocess.run(["git", "clean", "-f"], check=True)  # Clean untracked files
+
+# Handle conflicting files
+conflicting_files = ["Vehicle_Checkout_List.xlsx", "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"]
+for conflicting_file in conflicting_files:
+    file_path = REPO_DIR / conflicting_file
+    if file_path.exists():
+        file_path.unlink()  # Delete the conflicting file
+
 # Pull the latest changes
 st.write("Pulling the latest changes...")
-subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
-
+try:
+    subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
+except subprocess.CalledProcessError as e:
+    st.error(f"Failed to pull changes: {e}")
 
 # Function to push changes to GitHub
 def push_to_github(commit_message="Updated data files via Streamlit app"):
