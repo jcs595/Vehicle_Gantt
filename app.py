@@ -481,83 +481,91 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Dropdown to select an entry by Unique ID
         selected_id = st.selectbox(
-            "Select an entry to edit:", value=None,
-            options=df["Unique ID"].values,
+            "Select an entry to edit:",
+            options=[None] + df["Unique ID"].tolist(),  # Add `None` as the default value
             format_func=lambda
                 x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
-            if x in df["Unique ID"].values else "Unknown Entry"
+            if pd.notna(x) and x in df["Unique ID"].values else "Select an entry"  # Display a placeholder for `None`
         )
 
-        # Dictionary to store the edited values
-        edited_row = {}
+        if selected_id is not None:
+            # Proceed only if an entry is selected
+            st.write("Selected Entry Details:")
+            st.write(df.loc[selected_id])
 
-        # Editable fields
-        for column in df.columns:
-            if column == "Assigned to":  # Make "Assigned to" a dropdown
-                edited_row[column] = st.selectbox(
-                    f"{column}:",
-                    options=assigned_to_list,  # Use the predefined assigned_to_list
-                    index=assigned_to_list.index(df.loc[selected_id, column]) if df.loc[
-                                                                                     selected_id, column] in assigned_to_list else 0,
-                    key=f"edit_dropdown_{column}"
-                )
-            elif column == "Type":  # Make "Type" a dropdown
-                edited_row[column] = st.selectbox(
-                    f"{column}:",
-                    options=type_list,  # Use the predefined type_list
-                    index=type_list.index(df.loc[selected_id, column]) if df.loc[
-                                                                              selected_id, column] in type_list else 0,
-                    key=f"edit_dropdown_{column}"
-                )
-            elif column == "Status":  # Make "Status" a dropdown
-                edited_row[column] = st.selectbox(
-                    f"{column}:",
-                    options=["Confirmed", "Reserved"],
-                    index=["Confirmed", "Reserved"].index(df.loc[selected_id, column]) if df.loc[
-                                                                                              selected_id, column] in [
-                                                                                              "Confirmed",
-                                                                                              "Reserved"] else 0,
-                    key=f"edit_dropdown_{column}"
-                )
-            elif column == "Authorized Drivers":  # Make "Authorized Drivers" a multi-select
-                edited_row[column] = st.multiselect(
-                    f"{column}:",
-                    options=authorized_drivers_list,
-                    default=df.loc[selected_id, column].split(", ") if pd.notna(df.loc[selected_id, column]) else [],
-                    key=f"edit_multiselect_{column}"
-                )
-            elif pd.api.types.is_datetime64_any_dtype(df[column]):  # Date fields
-                edited_row[column] = st.date_input(
-                    f"{column}:",
-                    value=pd.Timestamp(df.loc[selected_id, column]) if pd.notna(
-                        df.loc[selected_id, column]) else datetime.today(),
-                    key=f"edit_date_{column}"
-                )
-            elif pd.api.types.is_numeric_dtype(df[column]):  # Numeric fields
-                edited_row[column] = st.number_input(
-                    f"{column}:",
-                    value=df.loc[selected_id, column] if pd.notna(df.loc[selected_id, column]) else 0,
-                    key=f"edit_number_{column}"
-                )
-            else:  # Text fields
-                edited_row[column] = st.text_input(
-                    f"{column}:",
-                    value=df.loc[selected_id, column] if pd.notna(df.loc[selected_id, column]) else "",
-                    key=f"edit_text_{column}"
-                )
+            # Dictionary to store the edited values
+            edited_row = {}
 
-        # Button to save changes
-        if st.button("Update Entry"):
-            try:
-                for key, value in edited_row.items():
-                    if key == "Authorized Drivers":  # Handle multi-select as a comma-separated string
-                        value = ", ".join(value)
-                    df.at[selected_id, key] = value
-                df.to_excel(file_path, index=False, engine="openpyxl")
-                push_changes_to_github()
-                st.success("Entry updated successfully!")
-            except Exception as e:
-                st.error(f"Failed to update entry: {e}")
+            # Editable fields
+            for column in df.columns:
+                if column == "Assigned to":  # Make "Assigned to" a dropdown
+                    edited_row[column] = st.selectbox(
+                        f"{column}:",
+                        options=assigned_to_list,  # Use the predefined assigned_to_list
+                        index=assigned_to_list.index(df.loc[selected_id, column]) if df.loc[
+                                                                                         selected_id, column] in assigned_to_list else 0,
+                        key=f"edit_dropdown_{column}"
+                    )
+                elif column == "Type":  # Make "Type" a dropdown
+                    edited_row[column] = st.selectbox(
+                        f"{column}:",
+                        options=type_list,  # Use the predefined type_list
+                        index=type_list.index(df.loc[selected_id, column]) if df.loc[
+                                                                                  selected_id, column] in type_list else 0,
+                        key=f"edit_dropdown_{column}"
+                    )
+                elif column == "Status":  # Make "Status" a dropdown
+                    edited_row[column] = st.selectbox(
+                        f"{column}:",
+                        options=["Confirmed", "Reserved"],
+                        index=["Confirmed", "Reserved"].index(df.loc[selected_id, column]) if df.loc[
+                                                                                                  selected_id, column] in [
+                                                                                                  "Confirmed",
+                                                                                                  "Reserved"] else 0,
+                        key=f"edit_dropdown_{column}"
+                    )
+                elif column == "Authorized Drivers":  # Make "Authorized Drivers" a multi-select
+                    edited_row[column] = st.multiselect(
+                        f"{column}:",
+                        options=authorized_drivers_list,
+                        default=df.loc[selected_id, column].split(", ") if pd.notna(
+                            df.loc[selected_id, column]) else [],
+                        key=f"edit_multiselect_{column}"
+                    )
+                elif pd.api.types.is_datetime64_any_dtype(df[column]):  # Date fields
+                    edited_row[column] = st.date_input(
+                        f"{column}:",
+                        value=pd.Timestamp(df.loc[selected_id, column]) if pd.notna(
+                            df.loc[selected_id, column]) else datetime.today(),
+                        key=f"edit_date_{column}"
+                    )
+                elif pd.api.types.is_numeric_dtype(df[column]):  # Numeric fields
+                    edited_row[column] = st.number_input(
+                        f"{column}:",
+                        value=df.loc[selected_id, column] if pd.notna(df.loc[selected_id, column]) else 0,
+                        key=f"edit_number_{column}"
+                    )
+                else:  # Text fields
+                    edited_row[column] = st.text_input(
+                        f"{column}:",
+                        value=df.loc[selected_id, column] if pd.notna(df.loc[selected_id, column]) else "",
+                        key=f"edit_text_{column}"
+                    )
+
+            # Button to save changes
+            if st.button("Update Entry"):
+                try:
+                    for key, value in edited_row.items():
+                        if key == "Authorized Drivers":  # Handle multi-select as a comma-separated string
+                            value = ", ".join(value)
+                        df.at[selected_id, key] = value
+                    df.to_excel(file_path, index=False, engine="openpyxl")
+                    push_changes_to_github()
+                    st.success("Entry updated successfully!")
+                except Exception as e:
+                    st.error(f"Failed to update entry: {e}")
+        else:
+            st.info("Please select an entry to edit.")
 
         # **3. Delete an Entry**
         st.subheader("Delete Entry:Save changes to save to DF")
