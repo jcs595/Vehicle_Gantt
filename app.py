@@ -42,7 +42,7 @@ if "DEPLOY_KEY" in st.secrets:
         """)
     os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
-os.chdir(REPO_DIR)
+
 
 def clone_repo_if_needed():
     """Clone the repository if it doesn't already exist."""
@@ -382,6 +382,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                     # Save the updated DataFrame to the Excel file
                     df.to_excel(file_path, index=False, engine="openpyxl")
+                    clone_repo_if_needed()
                     push_changes_to_github()
                     st.success("New entry added and saved successfully!")
             except Exception as e:
