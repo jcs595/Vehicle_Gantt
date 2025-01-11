@@ -553,19 +553,20 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     if key == "Authorized Drivers":  # Handle multi-select as a comma-separated string
                         value = ", ".join(value)
                     df.at[selected_id, key] = value
+                push_changes_to_github()
                 st.success("Entry updated successfully!")
             except Exception as e:
                 st.error(f"Failed to update entry: {e}")
 
         # **3. Delete an Entry**
-        st.subheader("Delete Entry")
+        st.subheader("Delete Entry: Note hit save changes to save to DF")
         if st.button("Delete Entry"):
             df = df.drop(index=selected_id).reset_index(drop=True)  # Reset index after deletion
             df["Unique ID"] = df.index  # Reassign Unique ID
             st.success("Entry deleted successfully!")
 
         # Bulk Delete Entries by Date Range
-        st.subheader("Bulk Delete Entries (Save copy before deleting)")
+        st.subheader("Bulk Delete Entries (Save copy before deleting): Note hit save changes to save to DF")
         start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
         end_date = st.date_input("End Date:", value=datetime.today())
 
