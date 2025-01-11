@@ -560,14 +560,15 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 st.error(f"Failed to update entry: {e}")
 
         # **3. Delete an Entry**
-        st.subheader("Delete Entry: Note hit save changes to save to DF")
+        st.subheader("Delete Entry:Save changes to save to DF")
         if st.button("Delete Entry"):
             df = df.drop(index=selected_id).reset_index(drop=True)  # Reset index after deletion
             df["Unique ID"] = df.index  # Reassign Unique ID
+            df.to_excel(file_path, index=False, engine="openpyxl")
             st.success("Entry deleted successfully!")
 
         # Bulk Delete Entries by Date Range
-        st.subheader("Bulk Delete Entries (Save copy before deleting): Note hit save changes to save to DF")
+        st.subheader("Bulk Delete Entries (Save copy before deleting):Save changes to save to DF")
         start_date = st.date_input("Start Date:", value=None)
         end_date = st.date_input("End Date:", value=None)
 
