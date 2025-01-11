@@ -432,24 +432,23 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Bulk Delete Entries by Date Range
         st.subheader("Bulk Delete Entries (Save copy before deleting)")
-
-        # Inputs for start and end dates
         start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
         end_date = st.date_input("End Date:", value=datetime.today())
 
-        # Convert start_date and end_date to pd.Timestamp
+        # Convert `start_date` and `end_date` to `pd.Timestamp`
         start_date = pd.Timestamp(start_date)
         end_date = pd.Timestamp(end_date)
 
-        # Filter the DataFrame based on the date range
-        if "Checkout Date" in df.columns and "Return Date" in df.columns:
-            filtered_df = df[(df["Checkout Date"] >= start_date) & (df["Return Date"] <= end_date)]
+        # Filter the entries within the specified date range
+        filtered_df = df[(df["Checkout Date"] >= start_date) & (df["Return Date"] <= end_date)]
 
-            # Display the filtered entries
-            st.write("Entries to be deleted:")
-            st.dataframe(filtered_df)
+        st.write("Entries to be deleted:")
+        st.dataframe(filtered_df)
 
-            # Confirm deletion
+        # First confirmation button
+        if st.button("Confirm Bulk Deletion"):
+            st.warning("Are you sure? This action cannot be undone!")
+            # Second confirmation button
             if st.button("Confirm and Delete"):
                 try:
                     # Drop the filtered rows
