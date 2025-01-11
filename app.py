@@ -567,8 +567,8 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Bulk Delete Entries by Date Range
         st.subheader("Bulk Delete Entries (Save copy before deleting): Note hit save changes to save to DF")
-        start_date = st.date_input("Start Date (optional):", value=None)
-        end_date = st.date_input("End Date (optional):", value=None)
+        start_date = st.date_input("Start Date:", value=None)
+        end_date = st.date_input("End Date:", value=None)
 
         # Convert `start_date` and `end_date` to `pd.Timestamp`
         start_date = pd.Timestamp(start_date)
@@ -595,8 +595,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     st.success("Selected entries have been deleted and saved successfully!")
                 except Exception as e:
                     st.error(f"Failed to delete entries: {e}")
-        else:
-            st.error("Date columns 'Checkout Date' and 'Return Date' are missing in the DataFrame.")
 
         # **Save Changes**
         if st.button("Save Changes"):
