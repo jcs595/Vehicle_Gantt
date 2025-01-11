@@ -61,15 +61,27 @@ def push_changes_to_github():
     """Push changes to GitHub."""
     st.write("Pushing changes to GitHub...")
     try:
+        # Check for unstaged changes
+        result = subprocess.run(["git", "status", "--porcelain"], stdout=subprocess.PIPE)
+        if result.stdout.strip():
+            st.warning("Unstaged changes detected. Stashing them temporarily.")
+            # Stash unstaged changes
+            subprocess.run(["git", "stash", "--include-untracked"], check=True)
+
         # Pull latest changes to avoid conflicts
         subprocess.run(["git", "pull", "origin", GITHUB_BRANCH, "--rebase"], check=True)
+
+        # Restore stashed changes
+        if result.stdout.strip():
+            st.info("Restoring stashed changes...")
+            subprocess.run(["git", "stash", "pop"], check=True)
 
         # Add all changes to the Git index
         subprocess.run(["git", "add", "-A"], check=True)
 
         # Check for changes in the index
-        result = subprocess.run(["git", "diff", "--cached"], stdout=subprocess.PIPE)
-        if not result.stdout.strip():
+        diff_result = subprocess.run(["git", "diff", "--cached"], stdout=subprocess.PIPE)
+        if not diff_result.stdout.strip():
             st.info("No changes detected. Nothing to commit.")
             return
 
@@ -82,6 +94,11 @@ def push_changes_to_github():
         st.success("Changes successfully pushed to GitHub!")
     except subprocess.CalledProcessError as e:
         st.error(f"Failed to push changes: {e}")
+    finally:
+        # Optional cleanup of stash in case of errors
+        subprocess.run(["git", "stash", "drop"], check=False, stderr=subprocess.DEVNULL)
+
+
 
     #finally:
         # Return to the original directory to avoid issues
