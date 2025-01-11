@@ -165,7 +165,7 @@ fig = px.timeline(
     #labels={"Assigned to": "Vehicle"}
 )
 
-# Add striped pattern for 'Reserved' bars
+# Add semi-transparent overlays for 'Reserved' bars
 for _, row in df.iterrows():
     if row['Status'] == 'Reserved':
         fig.add_shape(
@@ -176,10 +176,9 @@ for _, row in df.iterrows():
             y1=df['Type'].tolist().index(row['Type']) + 0.4,
             xref="x",
             yref="y",
-            fillcolor="rgba(0,0,0,0)",  # Transparent
-            line=dict(width=0),  # No border
-            layer="below",
-            pattern=dict(fillmode="overlay", shape="stripe", size=10, direction="45"))
+            fillcolor="rgba(255,0,0,0.3)",  # Red with 30% opacity
+            line=dict(color="red", dash="dot")
+        )  # Dashed border
 
 # Sort the y-axis by ascending order of 'Type'
 fig.update_yaxes(
