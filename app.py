@@ -331,8 +331,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                 # Display success message and updated list
                 st.success(f"'Assigned To' '{new_assigned_to}' successfully added.")
-                st.write("Updated 'Assigned To' list:")
-                st.write(assigned_to_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
@@ -394,8 +392,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                 # Display success message and updated list
                 st.success(f"Authorized driver '{new_driver}' successfully added.")
-                st.write("Updated 'Authorized Drivers' list:")
-                st.write(authorized_drivers_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
