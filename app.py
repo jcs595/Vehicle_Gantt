@@ -61,18 +61,15 @@ def push_changes_to_github():
     """Push changes to GitHub."""
     st.write("Pushing changes to GitHub...")
     try:
-        # Ensure repository is cloned
-        #clone_repo_if_needed()
+        # Pull latest changes to avoid conflicts
+        subprocess.run(["git", "pull", "origin", GITHUB_BRANCH, "--rebase"], check=True)
 
-        # Change to repo directory
-        #os.chdir(REPO_DIR)
-
-        # Add changes to the Git index
+        # Add all changes to the Git index
         subprocess.run(["git", "add", "-A"], check=True)
 
-        # Check if there are changes to commit
+        # Check for changes in the index
         result = subprocess.run(["git", "diff", "--cached"], stdout=subprocess.PIPE)
-        if not result.stdout:
+        if not result.stdout.strip():
             st.info("No changes detected. Nothing to commit.")
             return
 
@@ -85,9 +82,10 @@ def push_changes_to_github():
         st.success("Changes successfully pushed to GitHub!")
     except subprocess.CalledProcessError as e:
         st.error(f"Failed to push changes: {e}")
-    finally:
+
+    #finally:
         # Return to the original directory to avoid issues
-        os.chdir("..")
+        #os.chdir("..")
 
 
 # Path to the Excel file
