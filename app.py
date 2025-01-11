@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import subprocess
 import os
 from pathlib import Path
+import shutil
 
 # Set the app to wide mode
 st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_icon="📊")
@@ -13,6 +14,11 @@ st.set_page_config(layout="wide", page_title="SoF Vehicle Assignments", page_ico
 GITHUB_REPO = "jcs595/Vehicle_Gantt"  # Replace with your repo name
 GITHUB_BRANCH = "master"  # Replace with your branch name
 FILE_PATH = "Vehicle_Checkout_List.xlsx"  # Relative path to the Excel file in the repo
+REPO_DIR = Path("repo")
+
+# Set Git author identity
+subprocess.run(["git", "config", "--global", "user.name", "Jacob Shelly"], check=True)
+subprocess.run(["git", "config", "--global", "user.email", "jcs595@nau.edu"], check=True)
 
 # Path for the SSH private key and git configuration
 DEPLOY_KEY_PATH = Path("~/.ssh/github_deploy_key").expanduser()
@@ -36,36 +42,31 @@ if "DEPLOY_KEY" in st.secrets:
         """)
     os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
-# Clone the GitHub repository if not already cloned
-REPO_DIR = Path("repo")
-if not REPO_DIR.exists():
+# Check if the repo directory exists
+if REPO_DIR.exists():
+    # Verify if it's a valid Git repository
+    if not (REPO_DIR / ".git").exists():
+        shutil.rmtree(REPO_DIR)  # Delete if not a valid repo
+        st.write("Deleted existing invalid repo directory.")
+    else:
+        # If valid, navigate into the repo directory and pull the latest changes
+        os.chdir(REPO_DIR)
+        st.write("Pulling the latest changes...")
+        try:
+            subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
+        except subprocess.CalledProcessError as e:
+            st.error(f"Failed to pull changes: {e}")
+            st.stop()
+else:
+    # Clone the repository if it doesn't exist
     st.write("Cloning the repository...")
-    subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
+    try:
+        subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
+        os.chdir(REPO_DIR)
+    except subprocess.CalledProcessError as e:
+        st.error(f"Failed to clone repository: {e}")
+        st.stop()
 
-# Change working directory to the repo
-os.chdir(REPO_DIR)
-
-# Set Git pull strategy to merge (default)
-subprocess.run(["git", "config", "pull.rebase", "false"], check=True)
-
-# Clean untracked files before pulling
-subprocess.run(["git", "add", "-A"], check=True)  # Stage changes
-subprocess.run(["git", "commit", "-m", "Backup before pull"], check=False)  # Commit if changes exist
-subprocess.run(["git", "clean", "-f"], check=True)  # Clean untracked files
-
-# Handle conflicting files
-conflicting_files = ["Vehicle_Checkout_List.xlsx", "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"]
-for conflicting_file in conflicting_files:
-    file_path = REPO_DIR / conflicting_file
-    if file_path.exists():
-        file_path.unlink()  # Delete the conflicting file
-
-# Pull the latest changes
-st.write("Pulling the latest changes...")
-try:
-    subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
-except subprocess.CalledProcessError as e:
-    st.error(f"Failed to pull changes: {e}")
 
 # Function to push changes to GitHub
 def push_to_github(commit_message="Updated data files via Streamlit app"):
