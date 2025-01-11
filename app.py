@@ -59,12 +59,12 @@ def clone_repo_if_needed():
 
 def push_changes_to_github():
     """Push changes to GitHub."""
-    st.write("Pushing changes to GitHub...")
+    #st.write("Pushing changes to GitHub...")
     try:
         # Check for unstaged changes
         result = subprocess.run(["git", "status", "--porcelain"], stdout=subprocess.PIPE)
         if result.stdout.strip():
-            st.warning("Unstaged changes detected. Stashing them temporarily.")
+            #st.warning("Unstaged changes detected. Stashing them temporarily.")
             # Stash unstaged changes
             subprocess.run(["git", "stash", "--include-untracked"], check=True)
 
@@ -73,7 +73,7 @@ def push_changes_to_github():
 
         # Restore stashed changes
         if result.stdout.strip():
-            st.info("Restoring stashed changes...")
+            #st.info("Restoring stashed changes...")
             subprocess.run(["git", "stash", "pop"], check=True)
 
         # Add all changes to the Git index
