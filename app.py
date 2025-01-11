@@ -313,35 +313,43 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
 
         def save_assigned_to_list(file_path, data):
+            """Save the assigned to list to a file."""
             with open(file_path, "w") as file:
                 for item in data:
                     file.write(f"{item}\n")
 
 
-        # Callback function to handle new entry
+        # Function to handle new "Assigned To" addition
         def add_new_assigned_to():
-            if new_assigned_to not in assigned_to_list:
+            # Access the global input value
+            new_assigned_to = st.session_state["new_assigned_to"]
+            if new_assigned_to and new_assigned_to not in assigned_to_list:
                 assigned_to_list.append(new_assigned_to)
 
                 # Save the updated list to the file
                 save_assigned_to_list("assigned_to_list.txt", assigned_to_list)
 
                 # Display success message and updated list
-                st.success(f"'{new_assigned_to}' successfully added to the list.")
+                st.success(f"'Assigned To' '{new_assigned_to}' successfully added.")
                 st.write("Updated 'Assigned To' list:")
                 st.write(assigned_to_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
+
+                # Clear the input field
+                st.session_state["new_assigned_to"] = ""  # Reset the text input
+            elif not new_assigned_to:
+                st.warning("Input cannot be empty.")
             else:
-                st.warning("This name already exists in the list.")
+                st.warning("This entry already exists in the list.")
 
 
-        # Text input with Enter triggering the callback
-        new_assigned_to = st.text_input(
-            "Enter new Assigned To (Must be Faculty or Staff):",
+        # Text input with `on_change` to trigger the callback
+        st.text_input(
+            "Enter new 'Assigned To':",
+            key="new_assigned_to",  # Store the input in session state
             on_change=add_new_assigned_to,
-            key="new_assigned_to",  # Unique key for this input
         )
 
         # "Type" field (dropdown for vehicle types)
@@ -374,8 +382,10 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     file.write(f"{item}\n")
 
 
-        # Callback function to handle new authorized driver addition
+        # Function to handle new authorized driver addition
         def add_new_driver():
+            # Access the global input value
+            new_driver = st.session_state["new_driver"]
             if new_driver and new_driver not in authorized_drivers_list:
                 authorized_drivers_list.append(new_driver)
 
@@ -389,15 +399,20 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                 # Push changes to GitHub
                 push_changes_to_github()
+
+                # Clear the input field
+                st.session_state["new_driver"] = ""  # Reset the text input
+            elif not new_driver:
+                st.warning("Input cannot be empty.")
             else:
-                st.warning("This driver already exists in the list or input is empty.")
+                st.warning("This driver already exists in the list.")
 
 
-        # Text input with Enter triggering the callback
-        new_driver = st.text_input(
+        # Text input with `on_change` to trigger the callback
+        st.text_input(
             "Enter new Authorized Driver:",
+            key="new_driver",  # Store the input in session state
             on_change=add_new_driver,
-            key="new_driver",  # Unique key for this input
         )
 
         # Fields for other columns
