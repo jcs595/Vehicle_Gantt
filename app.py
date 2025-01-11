@@ -234,7 +234,7 @@ while current_date <= week_range:
             xref="x",
             yref="paper",
             line=dict(color="gray", width=1.5, dash="solid"),
-            layer="bottom",
+            layer="below",
         )
     # Add daily grid lines (thinner lines)
     fig.add_shape(
@@ -246,7 +246,7 @@ while current_date <= week_range:
         xref="x",
         yref="paper",
         line=dict(color="lightgray", width=0.5, dash="dot"),
-        layer="bottom",
+        layer="below",
     )
     current_date += timedelta(days=1)
 
