@@ -569,7 +569,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             st.success("Entry deleted successfully!")
 
         # Bulk Delete Entries by Date Range
-        '''st.subheader("Bulk Delete Entries (Save copy before deleting)")
+        st.subheader("Bulk Delete Entries (Save copy before deleting)")
         start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
         end_date = st.date_input("End Date:", value=datetime.today())
 
@@ -599,7 +599,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 except Exception as e:
                     st.error(f"Failed to delete entries: {e}")
         else:
-            st.error("Date columns 'Checkout Date' and 'Return Date' are missing in the DataFrame.")'''
+            st.error("Date columns 'Checkout Date' and 'Return Date' are missing in the DataFrame.")
 
         # **Save Changes**
         if st.button("Save Changes"):
