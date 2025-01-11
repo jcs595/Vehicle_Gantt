@@ -65,11 +65,19 @@ def push_changes_to_github():
         # Change to repo directory
         os.chdir(REPO_DIR)
 
-        # Add and commit changes
-        subprocess.run(["git", "add", FILE_PATH, "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"], check=True)
+        # Add changes to the Git index
+        subprocess.run(["git", "add", "-A"], check=True)
+
+        # Check if there are changes to commit
+        result = subprocess.run(["git", "diff", "--cached"], stdout=subprocess.PIPE)
+        if not result.stdout:
+            st.info("No changes detected. Nothing to commit.")
+            return
+
+        # Commit changes
         subprocess.run(["git", "commit", "-m", "Update Excel and TXT files from Streamlit app"], check=True)
 
-        # Push changes
+        # Push changes to GitHub
         subprocess.run(["git", "push", "origin", GITHUB_BRANCH], check=True)
 
         st.success("Changes successfully pushed to GitHub!")
@@ -78,6 +86,7 @@ def push_changes_to_github():
     finally:
         # Return to the original directory to avoid issues
         os.chdir("..")
+
 
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
