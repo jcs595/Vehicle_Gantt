@@ -3,5 +3,3 @@ plotly
 openpyxl
 streamlit
 datetime
-os
-subprocess
