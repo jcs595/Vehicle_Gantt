@@ -165,27 +165,6 @@ fig = px.timeline(
     #labels={"Assigned to": "Vehicle"}
 )
 
-# Ensure the Y-axis order is preserved
-unique_types = df['Type'].unique()
-fig.update_yaxes(
-    categoryorder="array",
-    categoryarray=unique_types
-)
-
-# Add semi-transparent overlays for 'Reserved' bars
-for _, row in df.iterrows():
-    if row['Status'] == 'Reserved':
-        fig.add_shape(
-            type="rect",
-            x0=row['Checkout Date'],
-            x1=row['Return Date'],
-            y0=df['Type'].tolist().index(row['Type']) - 0.4,
-            y1=df['Type'].tolist().index(row['Type']) + 0.4,
-            xref="x",
-            yref="y",
-            fillcolor="rgba(255,0,0,0.3)",  # Red with 30% opacity
-            line=dict(color="red", dash="dot")
-        )  # Dashed border
 
 # Sort the y-axis by ascending order of 'Type'
 fig.update_yaxes(
