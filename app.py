@@ -318,34 +318,35 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     file.write(f"{item}\n")
 
 
-        # Input field for new "Assigned To" entry
-        new_assigned_to = st.text_input("Enter new Assigned To (Must be Faculty or Staff):", "")
-
-        # Button to confirm the addition
-        if st.button("Add New Assigned To"):
-            if new_assigned_to and new_assigned_to not in assigned_to_list:
+        # Callback function to handle new entry
+        def add_new_assigned_to():
+            if new_assigned_to not in assigned_to_list:
                 assigned_to_list.append(new_assigned_to)
 
-                # Test if the name was added successfully
-                if new_assigned_to in assigned_to_list:
-                    st.success(f"'{new_assigned_to}' successfully added to the local list.")
-                else:
-                    st.error(f"Failed to add '{new_assigned_to}' to the local list.")
-
                 # Save the updated list to the file
-                with open("assigned_to_list.txt", "w") as file:
-                    file.writelines(f"{name}\n" for name in assigned_to_list)
+                save_assigned_to_list("assigned_to_list.txt", assigned_to_list)
 
-                # Display the updated list
+                # Display success message and updated list
+                st.success(f"'{new_assigned_to}' successfully added to the list.")
                 st.write("Updated 'Assigned To' list:")
                 st.write(assigned_to_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
-            elif new_assigned_to in assigned_to_list:
-                st.warning("This name already exists in the list.")
             else:
-                st.warning("The entered name cannot be empty.")
+                st.warning("This name already exists in the list.")
+
+
+        # Text input with Enter triggering the callback
+        new_assigned_to = st.text_input(
+            "Enter new Assigned To (Must be Faculty or Staff):",
+            on_change=add_new_assigned_to,
+            key="new_assigned_to",  # Unique key for this input
+        )
+
+        # Show the current list for reference
+        st.write("Current 'Assigned To' list:")
+        st.write(assigned_to_list)
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
