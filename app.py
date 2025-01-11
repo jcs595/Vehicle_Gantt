@@ -371,6 +371,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                     # Save the updated DataFrame to the Excel file
                     df.to_excel(file_path, index=False, engine="openpyxl")
+                    push_changes_to_github()
                     st.success("New entry added and saved successfully!")
             except Exception as e:
                 st.error(f"Failed to add entry: {e}")
