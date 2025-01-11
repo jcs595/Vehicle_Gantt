@@ -62,10 +62,10 @@ def push_changes_to_github():
     st.write("Pushing changes to GitHub...")
     try:
         # Ensure repository is cloned
-        clone_repo_if_needed()
+        #clone_repo_if_needed()
 
         # Change to repo directory
-        os.chdir(REPO_DIR)
+        #os.chdir(REPO_DIR)
 
         # Add changes to the Git index
         subprocess.run(["git", "add", "-A"], check=True)
@@ -382,7 +382,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
                     # Save the updated DataFrame to the Excel file
                     df.to_excel(file_path, index=False, engine="openpyxl")
-                    clone_repo_if_needed()
                     push_changes_to_github()
                     st.success("New entry added and saved successfully!")
             except Exception as e:
