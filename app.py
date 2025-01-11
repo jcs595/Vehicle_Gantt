@@ -488,10 +488,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             if x in df["Unique ID"].values else "Unknown Entry"
         )
 
-        # Display selected entry details
-        st.write("Selected Entry Details:")
-        st.write(df.loc[selected_id])
-
         # Dictionary to store the edited values
         edited_row = {}
 
