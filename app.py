@@ -481,7 +481,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Dropdown to select an entry by Unique ID
         selected_id = st.selectbox(
-            "Select an entry to edit:",
+            "Select an entry to edit:", value=None,
             options=df["Unique ID"].values,
             format_func=lambda
                 x: f"{df.loc[x, 'Assigned to']} ({df.loc[x, 'Checkout Date']} - {df.loc[x, 'Return Date']})"
