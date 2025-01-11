@@ -448,7 +448,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 df.to_excel(file_path, index=False, engine="openpyxl")
                 st.success("Changes saved to the Excel file!")
                 # Push changes to GitHub
-                push_changes_to_github("Updated Excel file via Streamlit app")
+                push_changes_to_github()
             except Exception as e:
                 st.error(f"Failed to save changes: {e}")
             except Exception as e:
