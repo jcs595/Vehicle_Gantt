@@ -318,9 +318,11 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     file.write(f"{item}\n")
 
 
-        # Add a new "Assigned to" entry
+        # Input field for new "Assigned To" entry
+        new_assigned_to = st.text_input("Enter new Assigned To (Must be Faculty or Staff):", "")
+
+        # Button to confirm the addition
         if st.button("Add New Assigned To"):
-            new_assigned_to = st.text_input("Enter new Assigned To (Must be Faculty or Staff):", "")
             if new_assigned_to and new_assigned_to not in assigned_to_list:
                 assigned_to_list.append(new_assigned_to)
 
@@ -333,12 +335,17 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 # Save the updated list to the file
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
+
                 # Display the updated list
                 st.write("Updated 'Assigned To' list:")
                 st.write(assigned_to_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
+            elif new_assigned_to in assigned_to_list:
+                st.warning("This name already exists in the list.")
+            else:
+                st.warning("The entered name cannot be empty.")
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
