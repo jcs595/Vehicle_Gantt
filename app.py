@@ -344,10 +344,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             key="new_assigned_to",  # Unique key for this input
         )
 
-        # Show the current list for reference
-        st.write("Current 'Assigned To' list:")
-        st.write(assigned_to_list)
-
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
 
@@ -403,10 +399,6 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             on_change=add_new_driver,
             key="new_driver",  # Unique key for this input
         )
-
-        # Show the current list for reference
-        st.write("Current 'Authorized Drivers' list:")
-        st.write(authorized_drivers_list)
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
