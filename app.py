@@ -43,7 +43,7 @@ if "DEPLOY_KEY" in st.secrets:
   #  subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
 
 # Change working directory to the repo
-os.chdir(REPO_DIR)
+#os.chdir(REPO_DIR)
 
 # Pull the latest changes
 st.write("Pulling the latest changes...")
