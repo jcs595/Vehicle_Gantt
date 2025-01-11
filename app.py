@@ -42,6 +42,8 @@ if "DEPLOY_KEY" in st.secrets:
         """)
     os.chmod(SSH_CONFIG_PATH, 0o600)  # Restrict permissions
 
+os.chdir(REPO_DIR)
+
 def clone_repo_if_needed():
     """Clone the repository if it doesn't already exist."""
     if not REPO_DIR.exists():
