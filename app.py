@@ -553,6 +553,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                     if key == "Authorized Drivers":  # Handle multi-select as a comma-separated string
                         value = ", ".join(value)
                     df.at[selected_id, key] = value
+                df.to_excel(file_path, index=False, engine="openpyxl")
                 push_changes_to_github()
                 st.success("Entry updated successfully!")
             except Exception as e:
