@@ -333,6 +333,9 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 # Save the updated list to the file
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
+                # Display the updated list
+                st.write("Updated 'Assigned To' list:")
+                st.write(assigned_to_list)
 
                 # Push changes to GitHub
                 push_changes_to_github()
