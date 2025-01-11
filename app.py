@@ -372,19 +372,41 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
 
         def save_drivers_list(file_path, data):
+            """Save the authorized drivers list to a file."""
             with open(file_path, "w") as file:
                 for item in data:
                     file.write(f"{item}\n")
 
 
-        # Add a new authorized driver
-        if st.button("Add New Authorized Driver"):
-            new_driver = st.text_input("Enter new Authorized Driver:", "")
+        # Callback function to handle new authorized driver addition
+        def add_new_driver():
             if new_driver and new_driver not in authorized_drivers_list:
                 authorized_drivers_list.append(new_driver)
+
+                # Save the updated list to the file
                 save_drivers_list("authorized_drivers_list.txt", authorized_drivers_list)
-                st.success(f"Authorized driver '{new_driver}' added.")
+
+                # Display success message and updated list
+                st.success(f"Authorized driver '{new_driver}' successfully added.")
+                st.write("Updated 'Authorized Drivers' list:")
+                st.write(authorized_drivers_list)
+
+                # Push changes to GitHub
                 push_changes_to_github()
+            else:
+                st.warning("This driver already exists in the list or input is empty.")
+
+
+        # Text input with Enter triggering the callback
+        new_driver = st.text_input(
+            "Enter new Authorized Driver:",
+            on_change=add_new_driver,
+            key="new_driver",  # Unique key for this input
+        )
+
+        # Show the current list for reference
+        st.write("Current 'Authorized Drivers' list:")
+        st.write(authorized_drivers_list)
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
