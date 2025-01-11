@@ -317,14 +317,24 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 for item in data:
                     file.write(f"{item}\n")
 
+
         # Add a new "Assigned to" entry
         if st.button("Add New Assigned To"):
             new_assigned_to = st.text_input("Enter new Assigned To (Must be Faculty or Staff):", "")
             if new_assigned_to and new_assigned_to not in assigned_to_list:
                 assigned_to_list.append(new_assigned_to)
+
+                # Test if the name was added successfully
+                if new_assigned_to in assigned_to_list:
+                    st.success(f"'{new_assigned_to}' successfully added to the local list.")
+                else:
+                    st.error(f"Failed to add '{new_assigned_to}' to the local list.")
+
+                # Save the updated list to the file
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
-                st.success(f"Assigned to '{new_assigned_to}' added.")
+
+                # Push changes to GitHub
                 push_changes_to_github()
 
         # "Type" field (dropdown for vehicle types)
