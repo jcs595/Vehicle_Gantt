@@ -298,7 +298,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
                 st.success(f"Assigned to '{new_assigned_to}' added.")
-                push_changes_to_github("Updated assigned_to_list.txt via Streamlit app")
+                push_changes_to_github()
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
