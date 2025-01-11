@@ -43,7 +43,7 @@ if not REPO_DIR.exists():
     subprocess.run(["git", "clone", f"git@github.com:{GITHUB_REPO}.git", REPO_DIR.name], check=True)
 
 # Change working directory to the repo
-#os.chdir(REPO_DIR)
+os.chdir(REPO_DIR)
 
 # Set Git pull strategy to merge (default)
 subprocess.run(["git", "config", "pull.rebase", "false"], check=True)
@@ -51,6 +51,25 @@ subprocess.run(["git", "config", "pull.rebase", "false"], check=True)
 # Pull the latest changes
 st.write("Pulling the latest changes...")
 subprocess.run(["git", "pull", "origin", GITHUB_BRANCH], check=True)
+
+
+# Function to push changes to GitHub
+def push_to_github(commit_message="Updated data files via Streamlit app"):
+    try:
+        # Stage all changes
+        subprocess.run(
+            ["git", "add", FILE_PATH, "type_list.txt", "authorized_drivers_list.txt", "assigned_to_list.txt"],
+            check=True)
+
+        # Commit the changes
+        subprocess.run(["git", "commit", "-m", commit_message], check=True)
+
+        # Push changes to the GitHub repository
+        subprocess.run(["git", "push", "origin", GITHUB_BRANCH], check=True)
+
+        st.success("Changes pushed to GitHub successfully!")
+    except subprocess.CalledProcessError as e:
+        st.error(f"Failed to push changes to GitHub: {e}")
 
 # Path to the Excel file
 file_path = r"Vehicle_Checkout_List.xlsx"
@@ -271,6 +290,8 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
                 st.success(f"Assigned to '{new_assigned_to}' added.")
+                # Push changes to GitHub
+                push_to_github("Updated authorized drivers list via Streamlit app")
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
@@ -308,6 +329,8 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 authorized_drivers_list.append(new_driver)
                 save_drivers_list("authorized_drivers_list.txt", authorized_drivers_list)
                 st.success(f"Authorized driver '{new_driver}' added.")
+                # Push changes to GitHub
+                push_to_github("Updated authorized drivers list via Streamlit app")
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
@@ -416,6 +439,10 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
             try:
                 df.to_excel(file_path, index=False, engine="openpyxl")
                 st.success("Changes saved to the Excel file!")
+                # Push changes to GitHub
+                push_to_github("Updated Excel file via Streamlit app")
+            except Exception as e:
+                st.error(f"Failed to save changes: {e}")
             except Exception as e:
                 st.error(f"Failed to save changes: {e}")
 
