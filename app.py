@@ -107,6 +107,7 @@ try:
     df['Checkout Date'] = pd.to_datetime(df['Checkout Date'])
     df['Return Date'] = pd.to_datetime(df['Return Date'])
     df["Unique ID"] = df.index  # Add a unique identifier for each row
+    df['Notes'] = df['Notes'].astype(str)
 
     # Sort the DataFrame by the 'Type' column (ascending order)
     df = df.sort_values(by="Type", ascending=True)
@@ -336,7 +337,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 authorized_drivers_list.append(new_driver)
                 save_drivers_list("authorized_drivers_list.txt", authorized_drivers_list)
                 st.success(f"Authorized driver '{new_driver}' added.")
-                push_changes_to_github("Updated authorized_drivers_list.txt via Streamlit app")
+                push_changes_to_github()
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
@@ -417,11 +418,14 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         start_date = pd.Timestamp(start_date)
         end_date = pd.Timestamp(end_date)
 
-        # Filter the entries within the specified date range
-        filtered_df = df[(df["Checkout Date"] >= start_date) &
-                         (df["Return Date"] <= end_date)]
+        # Filter DataFrame for entries within the date range
+        try:
+            filtered_df = df[(df["Checkout Date"] >= start_date) & (df["Return Date"] <= end_date)]
+            st.write("Entries to be deleted:")
+            st.dataframe(filtered_df)
+        except Exception as e:
+            st.error(f"Failed to filter data: {e}")
 
-        st.write("Entries to be deleted:")
         st.dataframe(filtered_df)
 
         # First confirmation button
