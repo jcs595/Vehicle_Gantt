@@ -388,14 +388,25 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
         st.write("Selected Entry Details:")
         st.write(df.loc[selected_id])
 
+        # Dictionary to store the edited values
         edited_row = {}
-        for column in df.columns[:-1]:  # Exclude Unique ID
-            if pd.api.types.is_datetime64_any_dtype(df[column]):
-                edited_row[column] = st.date_input(f"{column}:", value=df.loc[selected_id, column])
-            elif pd.api.types.is_numeric_dtype(df[column]):
-                edited_row[column] = st.number_input(f"{column}:", value=df.loc[selected_id, column])
-            else:
-                edited_row[column] = st.text_input(f"{column}:", value=df.loc[selected_id, column])
+
+        # Loop through columns and create widgets dynamically
+        for column in df.columns[:-1]:  # Exclude "Unique ID"
+            if column not in ["Assigned to", "Type", "Vehicle #", "Status",
+                              "Authorized Drivers"]:  # Already handled above
+                if pd.api.types.is_datetime64_any_dtype(df[column]):
+                    edited_row[column] = st.date_input(
+                        f"{column}:", value=df.loc[selected_id, column], key=f"edit_date_{column}"
+                    )
+                elif pd.api.types.is_numeric_dtype(df[column]):
+                    edited_row[column] = st.number_input(
+                        f"{column}:", value=df.loc[selected_id, column], key=f"edit_number_{column}"
+                    )
+                else:
+                    edited_row[column] = st.text_input(
+                        f"{column}:", value=df.loc[selected_id, column], key=f"edit_text_{column}"
+                    )
 
         if st.button("Update Entry"):
             for key, value in edited_row.items():
