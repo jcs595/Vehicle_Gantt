@@ -567,8 +567,8 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
 
         # Bulk Delete Entries by Date Range
         st.subheader("Bulk Delete Entries (Save copy before deleting): Note hit save changes to save to DF")
-        start_date = st.date_input("Start Date:", value=datetime.today() - timedelta(weeks=4))
-        end_date = st.date_input("End Date:", value=datetime.today())
+        start_date = st.date_input("Start Date (optional):", value=None)
+        end_date = st.date_input("End Date (optional):", value=None)
 
         # Convert `start_date` and `end_date` to `pd.Timestamp`
         start_date = pd.Timestamp(start_date)
