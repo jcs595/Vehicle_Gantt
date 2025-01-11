@@ -298,8 +298,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 with open("assigned_to_list.txt", "w") as file:
                     file.writelines(f"{name}\n" for name in assigned_to_list)
                 st.success(f"Assigned to '{new_assigned_to}' added.")
-                # Push changes to GitHub
-                push_to_github("Updated authorized drivers list via Streamlit app")
+                push_changes_to_github("Updated assigned_to_list.txt via Streamlit app")
 
         # "Type" field (dropdown for vehicle types)
         new_entry["Type"] = st.selectbox("Type (Vehicle):", options=[""] + type_list)
@@ -337,8 +336,7 @@ with st.expander("Manage Entries (Create, Edit, Delete) VEM use only."):
                 authorized_drivers_list.append(new_driver)
                 save_drivers_list("authorized_drivers_list.txt", authorized_drivers_list)
                 st.success(f"Authorized driver '{new_driver}' added.")
-                # Push changes to GitHub
-                push_to_github("Updated authorized drivers list via Streamlit app")
+                push_changes_to_github("Updated authorized_drivers_list.txt via Streamlit app")
 
         # Fields for other columns
         for column in df.columns[:-1]:  # Exclude "Unique ID"
